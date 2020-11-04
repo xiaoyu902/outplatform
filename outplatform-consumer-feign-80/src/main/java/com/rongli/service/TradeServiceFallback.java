@@ -1,4 +1,4 @@
-package com.rongli.service.patient;
+package com.rongli.service;
 
 import org.springframework.stereotype.Component;
 

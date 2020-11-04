@@ -1,4 +1,4 @@
-package com.rongli.service.patient;
+package com.rongli.service;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;

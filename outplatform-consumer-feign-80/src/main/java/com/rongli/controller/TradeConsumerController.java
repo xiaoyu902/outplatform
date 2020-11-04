@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rongli.entities.ResultBody;
-import com.rongli.service.patient.TradeClientService;
+import com.rongli.service.TradeClientService;
 
 @RestController
 @RequestMapping("his/service")
