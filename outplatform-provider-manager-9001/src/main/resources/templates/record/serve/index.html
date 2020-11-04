@@ -89,7 +89,7 @@
 		</td>
 		<td><input type="text" class="layui-input explain"></td>
 		<td><input type="text" class="layui-input length" value="50"></td>
-		<!--<td><input type="text" class="layui-input notNull" readonly value="false" onclick="toggleNotNull(this)"></td>-->
+		<td><input type="text" class="layui-input notNull" readonly value="false" onclick="toggleNotNull(this)"></td>
 		<td>
 			<button class="layui-btn layui-btn-primary" type="button" onclick="finishInput(this,'${type}')"><i class="layui-icon layui-icon-ok"></i></button>
 		</td>
@@ -105,7 +105,7 @@
 			<div class="layui-inline">
 				<label class="layui-form-label">服务ID<span style="color:red">*</span></label>
 				<div class="layui-input-inline">
-					<input type="text" id="serviceId"  class="layui-input">
+					<input type="text" id="serviceId" class="layui-input">
 				</div>
 			</div>
 		</div>
@@ -141,7 +141,8 @@
 				<label class="layui-form-label">数据库表名<span style="color:red">*</span></label>
 				<div class="layui-input-inline">
 					<select id="tableName" lay-filter="tableName" th:with="list=${@serveService.findTableList()}">
-						<option th:each="name:${list}" th:value="${name}" th:text="${name}"></option>
+						<option th:if="${nameStat.index==0}" selected="selected" th:each="name:${list}" th:value="${name}" th:text="${name}"></option>
+						<option th:if="${nameStat.index!=0}" th:each="name:${list}" th:value="${name}" th:text="${name}"></option>
 					</select>
 				</div>
 			</div>
@@ -169,13 +170,14 @@
 		<table class="layui-table">
 			<colgroup>
 			    <col width="70">
-			    <col width="100">
+			    <col width="150">
 			    <col>
 			    <col width="100">
 			    <col width="100">
 				<col>
 			    <col>
 			    <col width="60">
+			    <col width="80">
 			    <col>
 			</colgroup>
 			<thead>
@@ -188,6 +190,7 @@
 					<th>表字段</th>
 					<th>字段描述</th>
 					<th>长度</th>
+					<th>不为空</th>
 					<th colspan="2">
 						<button style="width: 100%;height:100%" class="layui-btn layui-btn-primary" type="button" onclick="addInput('input')"><i class="layui-icon layui-icon-addition"></i></button>
 					</th>
@@ -237,13 +240,14 @@
 		<table class="layui-table">
 			<colgroup>
 			    <col width="70">
-			    <col width="100">
+			    <col width="150">
 			    <col>
 			    <col width="100">
 			    <col width="100">
 				<col>
 			    <col>
 			    <col width="60">
+			    <col width="80">
 			    <col>
 			</colgroup>
 			<thead>
@@ -256,6 +260,7 @@
 					<th>数据库字段</th>
 					<th>字段描述</th>
 					<th>长度</th>
+					<th>不为空</th>
 					<th colspan="2">
 						<button style="width: 100%;height:100%" class="layui-btn layui-btn-primary" type="button" onclick="addInput('output')"><i class="layui-icon layui-icon-addition"></i></button>
 					</th>
@@ -488,7 +493,7 @@ layui.config({
 				type: 1,
 				skin: 'layui-layer-molv',
 				shade: 0.8,
-				area:['100%','100%'],
+				area:['95%','95%'],
 				title: "编辑服务",
 				content: $('#editService'),
 				success:function(layero,index){
@@ -581,7 +586,7 @@ layui.config({
 						_tr.find(".explain").val('');
 					}
 					_tr.find(".length").val(inputArr[i]['length']);
-					//_tr.find(".notNull").val(inputArr[i].notNull);
+					_tr.find(".notNull").val(inputArr[i].notNull);
 					$("#inputbox").append(_tr);
 					_tr.find("button").first().click();
 				}
@@ -612,7 +617,7 @@ layui.config({
 						_tr.find(".explain").val('');
 					}
 					_tr.find(".length").val(outputArr[i]['length']);
-					//_tr.find(".notNull").val(outputArr[i].notNull);
+					_tr.find(".notNull").val(outputArr[i].notNull);
 					$("#outputbox").append(_tr);
 					_tr.find("button").first().click();
 				}
@@ -711,18 +716,18 @@ layui.config({
 		if($(_this).val() == "单记录") {
 			$(_this).val("多记录");
 		}else{
-			$(_this).val("单记录")
+			$(_this).val("单记录");
 		}
 	}
 		
 	// 点击切换不为空
-	/* let toggleNotNull = function(_this){
+	let toggleNotNull = function(_this){
 		if($(_this).val() == "true") {
 			$(_this).val("false");
 		}else{
 			$(_this).val("true");
 		}
-	} */
+	}
 		
 	// 添加tr,type用于区分inputbox和outputbox
 	let addInput = function(type) {
@@ -825,7 +830,7 @@ layui.config({
 		_tr.find("input").removeAttr("disabled"); // 去除禁编辑
 		_tr.find("select").removeAttr("disabled"); // 去除禁编辑
 		_tr.find("input").first().attr("onclick", "toggleRecord(this)"); // 编辑记录
-		//_tr.find("input").last().attr("onclick", "toggleNotNull(this)"); // 编辑不为空
+		_tr.find("input").last().attr("onclick", "toggleNotNull(this)"); // 编辑不为空
 		// 改事件
 		$(_this).attr("onclick","finishInput(this,'"+type+"')");
 		
@@ -849,7 +854,7 @@ layui.config({
 				layer.msg("服务名不能为空！");
 				return false;
 			}
-			if(savedb == "1" && $("#tableName").val() == ''){
+			if(savedb == "1" && $("#tableName").val().trim() == ''){
 				layer.msg("表名不能为空！");
 				return false;
 			}
@@ -915,12 +920,6 @@ layui.config({
 		let inputRecords = [];
 		for(let i=0;i< input_trs.length;i++){
 			let _tr = $(input_trs[i]);
-			let isNotNull = false;
-			if((_tr.find(".codeRuler").val().trim() == '' || _tr.find(".changeRuler").val().trim() == '') && _tr.find(".value").val().trim() == ''){
-				isNotNull = false;
-			}else{
-				isNotNull = true;
-			}
 			// 获取value
 			let param = {
 				codeRuler: _tr.find(".codeRuler").val().trim(),
@@ -930,7 +929,7 @@ layui.config({
 				dbfield: _tr.find(".dbfield").val().trim(),
 				explain: _tr.find(".explain").val().trim(),
 				length: _tr.find(".length").val().trim(),
-				notNull: isNotNull
+				notNull: _tr.find(".notNull").val().trim()
 			};
 			if(_tr.find(".record").val() == "单记录"){
 				inputTitles.push(param);
@@ -953,12 +952,6 @@ layui.config({
 		let outputRecords = [];
 		for(let i=0;i< output_trs.length;i++){
 			let _tr = $(output_trs[i]);
-			let isNotNull = false;
-			if((_tr.find(".codeRuler").val().trim() == '' || _tr.find(".changeRuler").val().trim() == '') && _tr.find(".value").val().trim() == ''){
-				isNotNull = false;
-			}else{
-				isNotNull = true;
-			}
 			// 获取value
 			let param = {
 				codeRuler: _tr.find(".codeRuler").val().trim(),
@@ -968,7 +961,7 @@ layui.config({
 				dbfield: _tr.find(".dbfield").val().trim(),
 				explain: _tr.find(".explain").val().trim(),
 				length: _tr.find(".length").val().trim(),
-				notNull: isNotNull
+				notNull: _tr.find(".notNull").val().trim()
 			};
 			if(_tr.find(".record").val() == "单记录"){
 				outputTitles.push(param);

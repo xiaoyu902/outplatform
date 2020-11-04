@@ -34,13 +34,13 @@ public class ServeService {
 		PageHelper.startPage(page, limit);
 		QueryWrapper<ServiceEntity> wrapper = new QueryWrapper<>();
 		wrapper.like(!StringUtil.isEmpty(serviceId), "service_id", serviceId);
-		wrapper.like(!StringUtil.isEmpty(explain), "`explain`", explain);
+		wrapper.like(!StringUtil.isEmpty(explain), "service_explain", explain);
 		
 		List<ServiceEntity> serviceList = serveMapper.selectList(wrapper);
 		PageInfo<ServiceEntity> pageInfo = new PageInfo<>(serviceList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
-		obj.put("total", pageInfo.getTotal());
+		obj.put("count", pageInfo.getTotal());
 		obj.put("data", pageInfo.getList());
 		return obj;
 	}

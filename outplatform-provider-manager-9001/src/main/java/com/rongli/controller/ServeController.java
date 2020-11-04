@@ -1,7 +1,6 @@
 package com.rongli.controller;
 
 
-import java.util.concurrent.locks.Lock;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
