@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongli.mapper.primary.UserMapper">
+	
+	 
+	<insert id="addUser" parameterType="User" useGeneratedKeys="true" keyProperty="userid" keyColumn="userid">
+		insert into t_user(useraccount,password,username,phone,mail,isactive) value (#{useraccount},#{password},#{username},#{phone},#{mail},#{isactive})
+	</insert>
+	
+	<update id="updateUser" parameterType="User">
+		update t_user 
+		<trim prefix="set" suffix=" where userid=#{userid}" suffixOverrides=",">
+			<if test="useraccount != null and useraccount !=''">
+				useraccount=#{useraccount},
+			</if>
+			<if test="password != null and password != ''">
+				password=#{password},
+			</if>
+			<if test="username != null and username != ''">
+				username=#{username},
+			</if>
+			<if test="phone != null and phone != ''">
+				phone=#{phone},
+			</if>
+			<if test="mail != null and mail != ''">
+				mail=#{mail},
+			</if>
+			<if test="isactive != null and isactive != ''">
+				isactive=#{isactive},
+			</if>
+		</trim>
+	</update>
+	
+	<update id="updateRole" parameterType="Role">
+		update t_role 
+		<trim prefix="set" suffix=" where roleid=#{roleid}" suffixOverrides=",">
+			<if test="rolename != null and rolename !=''">
+				rolename=#{rolename},
+			</if>
+			<if test="roledesc != null and roledesc != ''">
+				roledesc=#{roledesc},
+			</if>
+		</trim>
+	</update>
+	
+	<insert id="insertRoleMenu"  parameterType="List">
+	  	INSERT INTO t_role_menu(roleid,menuid)
+		 values
+		 <foreach collection="menus" item="menuid" separator=",">
+		 (#{roleid},#{menuid})
+		 </foreach>
+	</insert>
+	
+	<insert id="insertRolePermission"  parameterType="List">
+	  	INSERT INTO t_role_permission(roleid,perid)
+		 values
+		 <foreach collection="pers" item="perid" separator=",">
+		 (#{roleid},#{perid})
+	</foreach>
+	</insert>
+</mapper>
+ 
+

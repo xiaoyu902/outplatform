@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.rongli</groupId>
+    <artifactId>outplatform</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>outplatform-api</artifactId>
+  <dependencies><!-- 当前Module需要用到的jar包，按自己需求添加，如果父类已经包含了，可以不用写版本号 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+	<!-- mybatis plus -->
+    <dependency>
+		<groupId>com.baomidou</groupId>
+		<artifactId>mybatis-plus-boot-starter</artifactId>
+		<version>3.4.0</version>
+	</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			  <artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		  <!-- swagger2 生成api文档 -->
+	    <dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger2</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+		<!-- swagger ui -->
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger-ui</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+		<dependency>  
+		    <groupId>com.alibaba</groupId>  
+		    <artifactId>fastjson</artifactId>  
+		</dependency>  
+		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+		</dependency>
+				<!-- https://mvnrepository.com/artifact/jaxen/jaxen -->
+		<dependency>
+		    <groupId>jaxen</groupId>
+		    <artifactId>jaxen</artifactId>
+		</dependency>
+	</dependencies>
+</project>

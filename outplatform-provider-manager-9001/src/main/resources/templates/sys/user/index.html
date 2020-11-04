@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	  <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+	   <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+	    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
+	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
+	<title>设置点是否可拖拽</title>
+	<style type="text/css">
+			#userinfo{
+				display:none;
+				padding:10px 20px 10px 20px;
+				line-height:30px;
+			}
+	</style>
+</head>
+<body>
+<blockquote class="layui-elem-quote layui-text">
+<form class="layui-form">
+<div class="layui-form-item">
+    <div class="layui-inline">
+      <label class="layui-form-label">用户账号</label>
+      <div class="layui-input-inline">
+        <input type="text" id="account" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-inline">
+      <button class="layui-btn" type="button" id="btn-add" ><i class="layui-icon layui-icon-add-1"></i>新增</button>
+	  <button class="layui-btn" type="button" id="btn-query"><i class="layui-icon layui-icon-search"></i>搜索</button>
+	</div>
+  </div> 
+  </form>
+</blockquote>
+<table id="tb" lay-filter="tb"></table>
+<script type="text/html" id="toolbar">
+	<div class="layui-inline">
+      <button class="layui-btn layui-btn-sm" type="button" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</button>
+	  <button class="layui-btn layui-btn-sm" type="button" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>修改信息</button>	
+<button class="layui-btn layui-btn-sm" type="button" lay-event="edit-psw"><i class="layui-icon layui-icon-util"></i>密码修改</button>	
+	</div>
+</script>
+<div id="userinfo">
+<form class="layui-form" id="form" method="post">
+<div class="layui-form-item">
+	    <div class="layui-inline">
+	      <label class="layui-form-label">登录账号<span style="color:red">*</span></label>
+	      <div class="layui-input-inline">
+	        <input type="hidden" id="userid" >
+	        <input type="text" id="useraccount"  class="layui-input">
+	      </div>
+	    </div>
+	    <div class="layui-inline" id="psw">
+	      <label class="layui-form-label">用户密码<span style="color:red">*</span></label>
+	      <div class="layui-input-inline">
+	        <input type="password" id="password" class="layui-input">
+	      </div>
+	    </div>
+	    <div class="layui-inline">
+	      <label class="layui-form-label">用户名<span style="color:red">*</span></label>
+	      <div class="layui-input-inline">
+	        <input type="text" id="username"  class="layui-input">
+	      </div>
+	    </div>
+	    <div class="layui-inline">
+	      <label class="layui-form-label">用户电话</label>
+	      <div class="layui-input-inline">
+	         <input type="text" id="phone" class="layui-input">
+	      </div>
+	    </div>
+	    <div class="layui-inline">
+	      <label class="layui-form-label">邮箱</label>
+	      <div class="layui-input-inline">
+	        <input type="text" id="mail" class="layui-input">
+	      </div>
+	    </div>
+	     <div class="layui-inline">
+	      <label class="layui-form-label">是否启用</label>
+	      <div class="layui-input-inline">
+	        <input type="checkbox"  name="isactive" lay-skin="switch" lay-filter="isactive" lay-text="ON|OFF" checked>
+	      </div>
+	    </div>
+	  </div> 
+	  <div class="layui-form-item">
+	      <label class="layui-form-label">角色列表<span style="color:red">*</span></label>
+             <div class="layui-input-block">
+                <select name="tags" id="tags" lay-verify="required" th:with="rolelist=${@userService.selectRoleList()}" xm-select="tags" xm-select-skin="normal">
+					<option  th:each="role:${rolelist}"  th:value="${role.roleid}" th:text="${role.rolename}"></option>
+			    </select>
+			 </div>
+	  </div>
+	  </form> 
+</div>
+</body>
+<script th:src="@{/js/jquery-2.0.0.min.js}"></script> 
+<script th:src="@{/js/Call_Ajaxtools.js}"></script>  
+<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>  
+<script th:inline="text">
+layui.config({
+    base: '[[@{/layuiadmin/}]]', //静态资源所在路径
+    version: new Date().getTime() //每次发布项目时，跟着改动下该属性值即可更新静态资源的缓存
+  }).extend({
+	    index: 'lib/index', //主入口模块
+	    formSelects: 'lib/extend/formSelects-v4'
+  }).use(['form','table','layer', 'formSelects'], function(){
+		  var table = layui.table;
+		  var form = layui.form;
+		  var formSelects = layui.formSelects;
+		  var m_isactive="1";
+		  var getParam=function(){
+			  //查询参数
+			  var params={
+			        	account:$("#account").val()
+			        };
+			  return params;
+		  }
+		
+		  //formSelects.value('tags', ['2','3']);//赋值选中，为option的value值，数组形式，给上海和深圳选中
+			 form.on('switch(isactive)', function(data){
+					if(data.elem.checked){ //开关value值，也可以通过data.elem.value得到
+						m_isactive="1";
+					}else{
+						m_isactive="0";
+					}
+			 });
+		  
+		  table.render({
+			    elem: '#tb'
+			    ,id:'table'
+			    ,method:'post'
+			    ,toolbar: '#toolbar'
+			    ,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+				      title: '提示'
+				      ,layEvent: 'LAYTABLE_TIPS'
+				      ,icon: 'layui-icon-tips'
+				    }]
+			    ,where: getParam()
+			    ,url:'[[@{/trade/selectUserList}]]'
+			    ,loading:true
+			    ,cols: [
+			    	[
+			    	  {type: 'radio', fixed: 'left'}		
+			    	  ,{field:'userid',  title: 'ID'}
+				      ,{field:'useraccount',title: '账户'}
+				      //,{field:'password', title: '密码'}
+				      ,{field:'username', title: '用户名'}
+				      ,{field:'phone', title: '电话'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+				      ,{field:'mail', title: '邮箱'}
+				      ,{field:'isactive', title: '是否启用', templet: function(res){
+				    	 return res.isactive=="1"?"已启用":"禁用";
+					      }}
+				      ,{field:'roleList', title: '角色列表', templet: function(res){
+				    	  var str="";
+				    	  var roleList=res.roleList;
+				    	  
+				    	  for(var i=1;i<=roleList.length;i++){
+				    		  var obj=roleList[i-1];
+				
+							 if(obj!=null){
+				    		  str+=i+"."+obj.rolename+" ";
+							 }
+				    	  }
+					        return str;
+					      }}
+			    	]
+			    ]
+		   		,page: true
+			  });
+		  //监听行工具事件
+		
+		  table.on('toolbar(tb)', function(obj){
+			  var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+			  var data = checkStatus.data;  //获取选中行数据
+			  if(data.length==0){
+				  layer.msg("请选中一行");
+				  return;
+			  }
+			  var row =data[0];
+			  switch(obj.event){
+			      case 'del':
+			    	  delUser(row);
+			    	  return;
+			      case 'edit':
+			    	  editUser(row);
+				     return;
+			      case 'edit-psw':
+			    	  edit_psw(row)
+			    	  return;
+			      break;
+			    };
+		   
+		      });
+		  
+			var edit_psw=function(row){
+				layer.prompt({title: '请输入新密码', formType: 1}, function(pass, index){
+				$.when(call_AjaxSyncRetObj("[[@{/trade/editUserPsw}]]?userid="+row.userid+"&password="+pass+"&useraccount="+row.useraccount)).done(function(data){	   
+				    var obj=C1_eval(data);
+				    if(obj.code=="0"){  
+				    	 //登入成功的提示与跳转
+				    	console.log(obj);
+			            layer.msg(obj.msg, {
+			              offset: '15px'
+			              ,icon: 1
+			              ,time: 1000
+			            }, function(){
+			            	//关闭窗体
+			            	 layer.close(index);
+			            	return;
+			            });
+						}else{
+							layer.msg(obj.msg);
+							return;
+						}
+					});
+				})
+			}
+			
+
+		var delUser=function(row){
+			//询问框
+			var index=layer.confirm('您确定删除用户【'+row.username+'】吗？', {
+			  btn: ['删除','关闭'] //按钮
+			}, function(){
+				$.when(call_AjaxSyncRetObj("[[@{/trade/delUser}]]?userid="+row.userid)).done(function(data){	   
+				    var obj=C1_eval(data);
+				    if(obj.code=="0"){  
+				    	 //登入成功的提示与跳转
+				    	console.log(obj);
+			            layer.msg(obj.msg, {
+			              offset: '15px'
+			              ,icon: 1
+			              ,time: 1000
+			            }, function(){
+			            	//关闭窗体
+			            	layer.close(index);
+			            	reload();
+			            	return;
+			            });
+					}else{
+						layer.msg(obj.msg);
+						return;
+					}
+				});
+			}, function(){
+			  layer.close(index);
+			});
+			//layer.alert(JSON.stringify(row));
+		}
+		
+		var editUser=function(row){
+			layer.open({
+				  type: 1,
+				  skin: 'layui-layer-molv',
+				  shade: 0.8,
+				  area:['90%','auto'],
+				  btn: ['提交', '关闭'], //只是为了演示
+				  title: "修改用户", //不显示标题
+				  content: $('#userinfo'),
+				  success:function(layero,index){
+					  	$("#psw").hide();
+					  	$('#userid').val(row.userid);
+			 		  	$('#password').val(row.password);
+			 		  	$('#useraccount').val(row.useraccount);
+			 			$('#username').val(row.username);
+			 			$('#phone').val(row.phone);
+			 			$('#mail').val(row.mail);
+			 			var tags=[];
+				    	  for(var i=0;i<(row.roleList).length;i++){
+				    		  var obj=row.roleList[i];
+				
+							 if(obj!=null){
+								 tags.push(obj.roleid);
+							 }
+				    	  }
+				    	  formSelects.value('tags', tags);
+				    	 
+				    	  var isactive=row.isactive;
+				    	  if(isactive==1){//启用
+				    		  m_isactive=1;
+				    		  $('input[name="isactive"]').prop("checked", true); 
+				    		//  $('input[name="isactive"]').children('em').text('ON');
+						 }else{//不启用
+							 m_isactive=2
+							  $('input[name="isactive"]').prop("checked", false); 
+							  //$('input[name="isactive"]').children('em').text('OFF');
+						  }
+				    	  form.render('checkbox');
+					//  formSelects.value('tags', row.);
+				  },
+				  yes: function (index, layero) {
+					  var userid=$("#userid").val();
+					  var rolestr=formSelects.value('tags', 'valStr');//值为2,4（选中为上海，深圳）
+					  var useraccount=$("#useraccount").val();
+					  var username=$("#username").val();
+					  var phone=$("#phone").val();
+					  var mail=$("#mail").val();
+					 $.when(call_AjaxSyncRetObj("[[@{/trade/editUser}]]?userid="+userid+"&useraccount="+encodeURIComponent(useraccount)+"&username="+encodeURIComponent(username)+"&phone="+phone+"&mail="+mail+"&rolestr="+rolestr+"&isactive="+m_isactive)).done(function(data){
+							   
+						    var obj=C1_eval(data);
+						    if(obj.code=="0"){  
+						    	 //登入成功的提示与跳转
+						    	console.log(obj);
+					            layer.msg(obj.msg, {
+					              offset: '15px'
+					              ,icon: 1
+					              ,time: 1000
+					            },function(){
+					            	 reload();
+					            	layer.closeAll();
+					            });
+							}else{
+								layer.msg(obj.msg);
+								return;
+							}
+						});
+				  },
+				  end: function (index) {//无论是确认还是取消，只要层被销毁了，end都会执行，不携带任何参数。layer.open关闭事件
+					  layer.close(index)
+				  }
+				});
+		}
+		
+		
+		$("body").keydown(function() {
+		   if (event.keyCode == "13") {//keyCode=13是回车键
+		        reload();
+		   		return false;
+		   }
+		});
+		
+	 	$('#btn-query').on('click', function(){
+		  	reload();
+		 });
+	  	
+		$('#btn-add').on('click', function(){
+			layer.open({
+				  type: 1,
+				  skin: 'layui-layer-molv',
+				  shade: 0.8,
+				  area:['90%','auto'],
+				  btn: ['提交', '关闭'], //只是为了演示
+				  title: "添加用户", //不显示标题
+				  content: $('#userinfo'),
+				  success:function(layero,index){
+					  $("#psw").show();
+				  },
+				  yes: function (index, layero) {
+					  var rolestr=formSelects.value('tags', 'valStr');//值为2,4（选中为上海，深圳）
+					  var orginfostr=formSelects.value('orginfos', 'valStr');
+					  var useraccount=$("#useraccount").val();
+					  var password=$("#password").val();
+					  var username=$("#username").val();
+					  var phone=$("#phone").val();
+					  var mail=$("#mail").val();
+					 $.when(call_AjaxSyncRetObj("[[@{/trade/addUser}]]?useraccount="+encodeURIComponent(useraccount)+"&password="+password+"&username="+encodeURIComponent(username)+"&phone="+phone+"&mail="+mail+"&rolestr="+rolestr+"&orginfostr="+orginfostr+"&isactive="+m_isactive)).done(function(data){
+							   
+						    var obj=C1_eval(data);
+							
+						    if(obj.code=="0"){  
+						    	 //登入成功的提示与跳转
+						    	console.log(obj);
+					            layer.msg(obj.msg, {
+					              offset: '15px'
+					              ,icon: 1
+					              ,time: 1000
+					            },function(){
+					            	 reload();
+					            	 layer.closeAll();
+					            });
+							}else{
+								layer.msg(obj.msg);
+								return;
+							}
+						});
+				  },
+				  end: function (index) {//无论是确认还是取消，只要层被销毁了，end都会执行，不携带任何参数。layer.open关闭事件
+					  layer.close(index)
+				  }
+				});
+		 });
+		var reload=function(){	
+			
+			      table.reload('table', {
+			        where: getParam()
+			      }, 'data');
+		}
+		});
+</script>
+
+</html>
+
