@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rongli.mapper.primary.BaseMapper">
+	<resultMap id="MenuMap" type="Menu">
+	    <id property="menuid" column="menuid" />
+	    <result column="fmenuid" property="fmenuid" />
+	    <result column="fontlogo" property="fontlogo" />
+	    <result column="menuname" property="menuname" />
+	    <result column="path" property="path" />
+	    <result column="isinside" property="isinside" />
+	    <result column="linkurl" property="linkurl" />
+	    <result column="sort" property="sort" />
+	    <collection property="sonMenuList" ofType="Menu"
+	        select="com.rongli.mapper.primary.BaseMapper.selectSonMenuList" column="menuid">
+	     </collection>
+	     <collection property="permissionList" ofType="Permission"
+	        select="com.rongli.mapper.primary.BaseMapper.selectPermissionList" column="menuid">
+	     </collection>
+	</resultMap>
+	<resultMap id="SonMenuMap" type="Menu">
+	    <id property="menuid" column="menuid" />
+	    <result column="fmenuid" property="fmenuid" />
+	    <result column="fontlogo" property="fontlogo" />
+	    <result column="menuname" property="menuname" />
+	    <result column="path" property="path" />
+	    <result column="isinside" property="isinside" />
+	    <result column="linkurl" property="linkurl" />
+	    <result column="sort" property="sort" />
+	     <collection property="permissionList" ofType="Permission"
+	        select="com.rongli.mapper.primary.BaseMapper.selectPermissionList" column="menuid">
+	     </collection>
+	</resultMap>
+	
+	
+	
+	<select id="selectTermList" resultType="Term">
+		SELECT
+			* 
+		FROM
+			v_term 
+		WHERE
+			orgno = #{orgno}
+			<if test="termid != null and termid != '' "> 
+				AND (termid=#{termid} or termname=#{termid})
+			</if>
+			<if test="channels != null and channels.size > 0 "> 
+				AND channelno IN ( 
+					<foreach collection="channels" item="item" separator=",">
+					#{item}
+					</foreach>
+				 ) 
+			</if>
+			<if test="mchs != null and mchs.size > 0 "> 
+				AND mchno IN ( 
+					<foreach collection="mchs" item="item" separator=",">
+					#{item}
+					</foreach>
+				 ) 
+			</if>
+	</select>
+	
+	<insert id="addTermList"  parameterType="List">
+			 INSERT INTO t_term(termid,orgno,mchno,channelno,termname,address,remark)
+			 values
+			 <foreach collection="list" item="item" separator=",">
+			 (#{item.termid},#{item.orgno},#{item.mchno},#{item.channelno},#{item.termname},#{item.address},#{item.remark})
+			 </foreach>
+	</insert>
+	
+	<update id="updateTerm">
+		UPDATE t_term 
+			SET channelno = #{channelno},termname=#{termname},address=#{address},remark=#{remark}
+		WHERE
+			orgno = #{orgno} and termid=#{termid} and mchno=#{mchno}
+	</update>
+	
+	<delete id="delTerm">
+		delete from t_term where orgno = #{orgno} and termid=#{termid}
+	</delete>
+	
+	<select id="selectAllMenuList" resultType="Menu">
+		select menuid,fmenuid,fontlogo,menuname,path,isinside,linkurl,sort from t_menu
+	</select>
+	
+	<update id="updateMenu" parameterType="Menu">
+		update t_menu 
+		<trim prefix="set" suffix=" where menuid=#{menuid}" suffixOverrides=",">
+			<if test="menuname != null and menuname !=''">
+				menuname=#{menuname},
+			</if>
+			<if test="linkurl != null and linkurl != ''">
+				linkurl=#{linkurl},
+			</if>
+			<if test="path != null and path != ''">
+				path=#{path},
+			</if>
+			<if test="isinside != null and isinside != ''">
+				isinside=#{isinside},
+			</if>
+			<if test="sort != null and sort != ''">
+				sort=#{sort},
+			</if>
+			<if test="fmenuid != null and fmenuid != ''">
+				fmenuid=#{fmenuid},
+			</if>
+			<if test="fontlogo != null and fontlogo != ''">
+				fontlogo=#{fontlogo},
+			</if>
+		</trim>
+	</update>
+	
+	<insert id="addMenu" parameterType="Menu"   keyColumn="menuid">
+		insert into t_menu(menuid,fmenuid,fontlogo,menuname,path,isinside,linkurl,sort) values (#{menuid},#{fmenuid},#{fontlogo},#{menuname},#{path},#{isinside},#{linkurl},#{sort})
+	</insert>
+	
+	
+	<delete id="delMenuByMenuId" parameterType="String">
+		delete from t_menu where menuid=#{menuid}
+	</delete>
+	
+	
+	<select id="selectMenuList" resultMap="MenuMap">
+			SELECT
+				* 
+			FROM
+				t_menu 
+			WHERE
+				ISNULL( fmenuid ) 
+				OR fmenuid = '' 
+			ORDER BY
+				sort ASC
+	</select>
+	
+	<select id="selectSonMenuList" resultMap="SonMenuMap">
+		SELECT
+				* 
+			FROM
+				t_menu 
+			WHERE
+				fmenuid = #{menuid}
+			ORDER BY
+				sort ASC
+	</select>
+	
+	<select id="selectPermissionList"  resultType="Permission">
+		SELECT
+				* 
+			FROM
+				t_permission 
+			WHERE
+				menuid = #{menuid}
+			ORDER BY
+				perid ASC
+	</select>
+	
+	<insert id="addPermission" parameterType="Permission">
+		insert into t_permission(perid,permissiondesc,permission,menuid)value(#{perid},#{permissiondesc},#{permission},#{menuid})
+	</insert>
+	
+	<delete id="deletePermission">
+		delete from t_permission where perid=#{perid}
+	</delete>
+	
+	<update id="updatePermission">
+		update t_permission set permissiondesc=#{permissiondesc},permission=#{permission} where perid=#{perid}
+	</update>
+</mapper>
+ 
+

@@ -1,0 +1,28 @@
+<config>
+    <input>
+         <!--in 是未混淆的jar  out是混淆后的jar    -->
+        <jar in="rlbill-new.war" out="rlbill-new-allatori.war"/>
+    </input>
+    <ignore-classes>
+        <class template="class *springframework*" />
+        <class template="class *shardingjdbc*" />
+        <class template="class *jni*" />
+        <class template="class *alibaba*"/>
+        <class template="class *persistence*"/>
+        <!-- 排除如下包下的类-->
+        <class template="class com.rongli.config.*" />
+        <class template="class *mapper*" />
+        <class template="class com.rongli.aspect.*" />
+        <class template="class com.rongli.entities.*" />
+        <class template="class com.rongli.controller.*" />
+        <class template="class com.rongli.websocket.*" />
+        <class template="class com.rongli.Application" />
+    </ignore-classes>
+    <keep-names>
+        <class access="protected+">
+            <field access="protected+"/>
+            <method access="protected+"/>
+        </class>
+    </keep-names>
+    <property name="log-file" value="log.xml"/>
+</config>

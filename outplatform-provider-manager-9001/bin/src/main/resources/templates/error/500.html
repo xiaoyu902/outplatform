@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <title>出错了</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+  <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+  <style type="text/css">
+  	body{
+  		overflow-x:hidden;font-size:20px;color:#CDC9C9;
+  	}
+	p{
+		font-size:30px;
+	}
+  </style>
+</head>
+<body>
+
+
+<div class="layui-fluid" style="width:100%;position:absolute;">
+  <div class="layadmin-tips" style="width:100%;">
+    <i style="color:#CDC9C9" class="layui-icon" face>&#xe664;</i>
+	<p th:text="页面出现错误"></p>
+  </div>
+</div>
+
+
+  <script th:src="@{/layuiadmin/layui/layui.js}"></script>
+  <script>
+  layui.config({
+	  base: '[[@{/layuiadmin/}]]' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index']);
+  </script>
+</body>
+</html>
