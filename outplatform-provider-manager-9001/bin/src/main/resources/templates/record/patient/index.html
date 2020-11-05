@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+	<link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
+	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
+	
+	<title>服务管理</title>
+</head>
+<body>
+<blockquote class="layui-elem-quote layui-text">
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">终端ID</label>
+				<div class="layui-input-inline">
+					<input type="text" id="termId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">用户姓名</label>
+				<div class="layui-input-inline">
+					<input type="text" id="name" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<button class="layui-btn" type="button" id="btn-query"><i class="layui-icon layui-icon-search"></i>搜索</button>
+			</div>
+		</div>
+	</form>
+</blockquote>
+<table id="tb" lay-filter="tb"></table>
+</body>
+<script th:src="@{/js/jquery-3.5.1.min.js}"></script>
+<script th:src="@{/js/Call_Ajaxtools.js}"></script>
+<script th:src="@{/js/axios.min.js}"></script>
+<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>  
+<script th:inline="text">
+layui.config({
+    base: '[[@{/layuiadmin/}]]', //静态资源所在路径
+    version: new Date().getTime() //每次发布项目时，跟着改动下该属性值即可更新静态资源的缓存
+  }).extend({
+	    index: 'lib/index', //主入口模块
+	    formSelects: 'lib/extend/formSelects-v4'
+  }).use(['form','table','layer', 'formSelects'], function(){
+		let table = layui.table;
+		let form = layui.form;
+		let formSelects = layui.formSelects;
+		
+		// 搜索参数
+		let getParam = function(){
+			//查询参数
+			let params = {
+				serviceId: $("#termId").val().trim(),
+				explain: $("#name").val().trim()
+			};
+			return params;
+		}
+		
+		
+		// 查询按钮
+		$('#btn-query').on('click', function(){
+			reload();
+		});
+		
+		// 回车查询
+		$("body").keydown(function() {
+		   if(event.keyCode == "13") {//keyCode=13是回车键
+				reload();
+				return false;
+			}
+		});
+		
+		
+		// 渲染表
+		table.render({
+			elem: '#tb'
+			,id:'table'
+			,method:'POST'
+			,toolbar: '#toolbar'
+			,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+				title: '提示'
+				,layEvent: 'LAYTABLE_TIPS'
+				,icon: 'layui-icon-tips'
+			}]
+			,where: getParam()
+			,url:'[[@{/trade/selectPatientList}]]'
+			,loading:true
+			,cols: [
+				[
+					{type: 'radio', fixed: 'left'}		
+					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
+					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
+					,{field:'termId', width:100, title: '终端ID'}
+					,{field:'tradeTime', width:200, title: '注册时间', sort: true}
+					,{field:'name', width:100, title: '用户姓名'}
+					,{field:'sex', width:100, title: '性别', templet: function(res){
+						return res.sex=="1"?"男":res.sex=="2"?"女":"无";
+					}}
+					,{field:'birthday', width:150, title: '出生日期'}
+					,{field:'address', width:100, title: '地址'}
+					,{field:'mobile', width:150, title: '手机号'}
+					,{field:'country', width:100, title: '国籍'}
+					,{field:'nation', width:100, title: '民族'}
+					,{field:'photo', width:100, title: '照片', hide: true}
+					,{field:'patientType', width:100, title: '用户类型', templet: function(res){
+						return res.patientType=="0"?"成人":res.patientType=="1"?"儿童":"";
+					}}
+					,{field:'cardType', width:100, title: '卡类型', hide: true}
+					,{field:'cardNo', width:100, title: '卡号', hide: true}
+					,{field:'certificateType', width:100, title: '证件类型', hide: true}
+					,{field:'certificateNo', width:100, title: '证件号', hide: true}
+					,{field:'guardCertType', width:100, title: '监护人证件类型', hide: true}
+					,{field:'guardCertNo', width:100, title: '监护人证件号', hide: true}
+					,{field:'guardName', width:100, title: '监护人姓名', hide: true}
+					,{field:'patientId', width:100, title: '院内用户ID', hide: true}
+					,{field:'medicalNo', width:100, title: '病历号', hide: true}
+					,{field:'createHealthCard', width:100, title: '电子健康卡标准', hide: true, templet: function(res){
+						return res.createHealthCard=="1"?"创建":"不创建";
+					}}
+					,{field:'qrCodeText', width:100, title: '电子健康卡二维码', hide: true}
+				]
+			]
+		   	,page: true
+		});
+		
+		// 重新渲染表
+		let reload = function(){
+			table.reload('table', {where: getParam()}, 'data');
+		}
+		
+		
+	});
+	
+	
+	
+	
+
+</script>
+
+</html>
+

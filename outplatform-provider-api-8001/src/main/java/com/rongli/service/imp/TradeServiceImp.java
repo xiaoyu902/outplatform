@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.rongli.common.utils.SpringUtil;
 import com.rongli.common.utils.StringUtil;
 import com.rongli.driver.HospTradeDriver;
@@ -16,7 +14,6 @@ import com.rongli.entities.params.ServiceEntity;
 import com.rongli.entities.params.ServiceResult;
 import com.rongli.exception.BaseException;
 import com.rongli.mapper.ServiceApiMapper;
-import com.rongli.service.DataHandleService;
 import com.rongli.service.TradeService;
 
 import lombok.extern.slf4j.Slf4j;

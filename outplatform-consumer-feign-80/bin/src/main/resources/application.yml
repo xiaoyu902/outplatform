@@ -1,0 +1,26 @@
+server:
+  port: 80
+
+#客户端开启hystrix服务降级
+feign: 
+  hystrix: 
+    enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+                
+spring:
+  application:
+    name: outplatform-consumer-feign
+
+eureka:
+  client:
+    register-with-eureka: true
+    service-url: 
+      defaultZone: http://127.0.0.1:7001/eureka/
+      #defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/

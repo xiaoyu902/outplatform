@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	  <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+	   <link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+	    <link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
+	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
+	<title>设置点是否可拖拽</title>
+	<style type="text/css">
+			#per{
+				display:none;
+				padding:10px 20px 10px 20px;
+				line-height:30px;
+			}
+	</style>
+</head>
+<body>
+ <div class="layui-row">
+    <div class="demo-tree-more layui-col-xs6 layui-col-sm4 layui-col-md2" id="menu" >
+
+    </div>
+    <div class="layui-col-xs6 layui-col-sm8 layui-col-md10">
+	    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+		  <legend id="title"></legend>
+		</fieldset>
+      	<table id="tb" lay-filter="tb"></table>
+    </div>
+ </div>
+
+<script type="text/html" id="toolbar">
+	<div class="layui-inline">
+		<button class="layui-btn layui-btn-sm" type="button" lay-event="add"><i class="layui-icon layui-icon-add-1"></i>新增</button>	
+      	<button class="layui-btn layui-btn-sm" type="button" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</button>
+	  	<button class="layui-btn layui-btn-sm" type="button" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>修改</button>	
+	</div>
+</script>
+<div id="per">
+	<form class="layui-form" id="form" method="post">
+		<div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label">权限id<span style="color:red">*</span></label>
+		      <div class="layui-input-inline">
+		        <input type="text" id="perid"  class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">权限描述<span style="color:red">*</span></label>
+		      <div class="layui-input-inline">
+		        <input type="text" id="permissiondesc"  class="layui-input">
+		      </div>
+		    </div>
+		     <div class="layui-inline">
+		      <label class="layui-form-label">权限串<span style="color:red">*</span></label>
+		      <div class="layui-input-inline">
+		        <input type="text" id="permission"  class="layui-input">
+		      </div>
+		    </div>
+	    </div>
+	 </form>
+</div>
+</body>
+<script th:src="@{/js/jquery-2.0.0.min.js}"></script> 
+<script th:src="@{/js/Call_Ajaxtools.js}"></script>  
+<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>  
+<script th:inline="text">
+layui.config({
+    base: '[[@{/layuiadmin/}]]', //静态资源所在路径
+    version: new Date().getTime() //每次发布项目时，跟着改动下该属性值即可更新静态资源的缓存
+  }).extend({
+	    index: 'lib/index', //主入口模块
+	    formSelects: 'lib/extend/formSelects-v4'
+  }).use(['form','table','layer', 'formSelects','tree', 'util'], function(){
+		  var table = layui.table;
+		  var form = layui.form;
+		  var formSelects = layui.formSelects;
+		  var tree = layui.tree;
+		  var layer = layui.layer;
+		  var util = layui.util;
+		  var m_menuid="0";
+		  
+		  var loadMenu=function(){
+			  $.ajax({
+					type:"post",
+					url:"[[@{/org/selectMenuList}]]",
+					success:function(data){
+						var obj=C1_eval(data);
+						if(obj.code!="0"){
+							layer.alert("初始化菜单失败:"+obj.msg);
+							return;
+						}
+						var menulist=obj.data;
+						//模拟数据
+						var data=[];
+						for(var i=0;i<menulist.length;i++){
+							var obj={};
+							obj.title='<i class="layui-icon layui-icon-spread-left"></i> '+menulist[i].menuid+" "+menulist[i].menuname;
+							obj.name=menulist[i].menuname;
+							obj.id=menulist[i].menuid;
+							obj.field='menu';
+							obj.isparent=true;
+							obj.spread=true;
+							
+							if(menulist[i].sonMenuList.length>0){
+								obj.disabled=true
+								var children=[];
+								for(var x=0;x<menulist[i].sonMenuList.length;x++){
+									var son=menulist[i].sonMenuList[x];
+									var son_dt={};
+									son_dt.title='<i class="layui-icon layui-icon-spread-left"></i> '+son.menuid+" "+son.menuname;
+									son_dt.name=son.menuname;
+									son_dt.id=son.menuid;
+									son_dt.field='menu';
+									son_dt.spread=true;
+									son_dt.isparent=false;
+									children.push(son_dt);
+								}
+								obj.children=children;
+							}
+							
+							data.push(obj);
+						}
+						
+						  //基本演示
+						  tree.render({
+						    elem: '#menu'
+						    ,data: data
+						    ,showCheckbox: false  //是否显示复选框
+						    ,id: 'menu'
+						    ,isJump: true //是否允许点击节点时弹出新窗口跳转
+						    ,click: function(obj){
+						      var data = obj.data;  //获取当前点击的节点数据
+						      var menuid=data.id;
+						      m_menuid=menuid
+						      //layer.msg('状态：'+ obj.state + '<br>节点数据：' + JSON.stringify(data));
+						      initTable(data.name);
+						    }
+						  });
+				    },
+				   error: function (XMLHttpRequest) {
+				       layer.alert("初始化菜单异常");
+			           return;
+				    }
+				});
+		  }
+		  
+		  
+		  
+		  var initTable=function(title){
+			  $("#title").html('<i class="layui-icon layui-icon-spread-left"></i> '+title);
+			  table.render({
+				    elem: '#tb'
+				    ,id:'table'
+				    ,method:'post'
+				    ,toolbar: '#toolbar'
+				    ,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+					      title: '提示'
+					      ,layEvent: 'LAYTABLE_TIPS'
+					      ,icon: 'layui-icon-tips'
+					    }]
+				    ,url:'[[@{/trade/permissionList}]]'
+				    ,where:{
+				    	menuid:m_menuid
+				    }
+				    ,loading:true
+				    ,cols: [
+				    	[
+				    	  {type: 'radio', fixed: 'left'}		
+					      ,{field:'perid',title: 'ID'}
+					      ,{field:'permissiondesc', title: '权限描述'}
+					      ,{field:'permission', title: '权限串'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+				    	]
+				    ]
+			   		,page: true
+				  });
+		  }
+		 
+		  //监听行工具事件
+		
+		  table.on('toolbar(tb)', function(obj){
+			  var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+			  var data = checkStatus.data;  //获取选中行数据
+			 
+			  var row =data[0];
+			  switch(obj.event){
+			      case 'del':
+			    	  if(data.length==0){
+						  layer.msg("请选中一行");
+						  return;
+					  }
+			    	  delPermission(row);
+			    	  return;
+			      case 'edit':
+			    	  if(data.length==0){
+						  layer.msg("请选中一行");
+						  return;
+					  }
+			    	  editPermission(row);
+			    	  return;
+			      case 'add':
+			    	  addPermission();
+				     //layer.alert(JSON.stringify(row));
+				     return;
+			    };
+		   
+		      });
+		  
+		var delPermission=function(row){
+			//询问框
+			var index=layer.confirm('您确定删除权限【'+row.permissiondesc+'】吗？', {
+			  btn: ['删除','关闭'] //按钮
+			}, function(){
+				$.when(call_AjaxSyncRetObj("[[@{/trade/delPermission}]]?perid="+row.perid)).done(function(data){	   
+				    var obj=C1_eval(data);
+				    if(obj.code=="0"){  
+				    	 //登入成功的提示与跳转
+				    	console.log(obj);
+			            layer.msg(obj.msg, {
+			              offset: '15px'
+			              ,icon: 1
+			              ,time: 1000
+			            }, function(){
+			            	//关闭窗体
+			            	layer.close(index);
+			            	reload();
+			            	return;
+			            });
+					}else{
+						layer.msg(obj.msg);
+						return;
+					}
+				});
+			}, function(){
+				layer.closeAll();
+			});
+		}
+		
+		var editPermission=function(row){
+			layer.open({
+				  type: 1,
+				  skin: 'layui-layer-molv',
+				  shade: 0.8,
+				  area:['90%','auto'],
+				  btn: ['提交', '关闭'], //只是为了演示
+				  title: "修改权限", //不显示标题
+				  content: $('#per'),
+				  success:function(layero,index){
+					  	$('#permissiondesc').val(row.permissiondesc);
+			 		  	$('#permission').val(row.permission);
+			 			$('#perid').val(row.perid);
+			 			$("#perid").attr("readonly",true);
+				  },
+				  yes: function (index, layero) {
+					 var permissiondesc= $('#permissiondesc').val();
+			 		  var permission= $('#permission').val();
+			 			var perid= $('#perid').val();
+					 $.when(call_AjaxSyncRetObj("[[@{/trade/editPermission}]]?permissiondesc="+permissiondesc+"&permission="+permission+"&perid="+perid)).done(function(data){
+							   
+						    var obj=C1_eval(data);
+						    if(obj.code=="0"){  
+						    	 //登入成功的提示与跳转
+						    	console.log(obj);
+					            layer.msg(obj.msg, {
+					              offset: '15px'
+					              ,icon: 1
+					              ,time: 1000
+					            },function(){
+					            	 reload();
+					            	layer.closeAll();
+					            });
+							}else{
+								layer.msg(obj.msg);
+								return;
+							}
+						});
+				  },
+				  end: function (index) {//无论是确认还是取消，只要层被销毁了，end都会执行，不携带任何参数。layer.open关闭事件
+					  layer.closeAll();
+				  }
+				});
+		}
+		
+		var addPermission=function(){
+			layer.open({
+				  type: 1,
+				  skin: 'layui-layer-molv',
+				  shade: 0.8,
+				  area:['90%','auto'],
+				  btn: ['提交', '关闭'], //只是为了演示
+				  title: "修改权限", //不显示标题
+				  content: $('#per'),
+				  success:function(layero,index){
+					  	$('#permissiondesc').val();
+			 		  	$('#permission').val();
+			 			$('#perid').val();
+			 			$("#perid").attr("readonly",false);
+				  },
+				  yes: function (index, layero) {
+					 var permissiondesc= $('#permissiondesc').val();
+			 		  var permission= $('#permission').val();
+			 			var perid= $('#perid').val();
+					 $.when(call_AjaxSyncRetObj("[[@{/trade/addPermission}]]?permissiondesc="+permissiondesc+"&permission="+permission+"&perid="+perid+"&menuid="+m_menuid)).done(function(data){
+							   
+						    var obj=C1_eval(data);
+						    if(obj.code=="0"){  
+						    	 //登入成功的提示与跳转
+						    	console.log(obj);
+					            layer.msg(obj.msg, {
+					              offset: '15px'
+					              ,icon: 1
+					              ,time: 1000
+					            },function(){
+					            	 reload();
+					            	layer.closeAll();
+					            });
+							}else{
+								layer.msg(obj.msg);
+								return;
+							}
+						});
+				  },
+				  end: function (index) {//无论是确认还是取消，只要层被销毁了，end都会执行，不携带任何参数。layer.open关闭事件
+					  layer.closeAll();
+				  }
+				});
+		 };
+		var reload=function(){	
+			      table.reload('table');
+		}
+			loadMenu();
+		  initTable("首页",0);
+		});
+</script>
+
+</html>
+

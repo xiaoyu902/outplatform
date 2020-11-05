@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rongli.mapper.OutputDicMapper">
+
+	<cache type="com.rongli.config.redis.RedisCache">
+	 	<property name="eviction" value="LRU" />
+        <property name="flushInterval" value="6000000" />
+        <property name="size" value="1024" />
+        <property name="readOnly" value="false" />
+	</cache>
+
+	<!-- 
+		public String getPayType(@Param("data")String data);
+	
+	public String getCardType(@Param("data")String data);
+	
+	public String getCertType(@Param("data")String data);
+	
+	public String getChannelType(@Param("data")String data);
+	
+	public String getCountry(@Param("data")String data);
+	
+	public String getFeeType(@Param("data")String data);
+	
+	public String getRechargeType(@Param("data")String data);
+	
+	public String getSexType(@Param("data")String data);
+	
+	public String getTimeType(@Param("data")String data);
+	
+	public String getTitleType(@Param("data")String data);
+	 -->
+	<select id="getPayType" parameterType="String" resultType="String">
+		select pay_type from t_dic_paytype where his_type=#{data}
+	</select>
+	
+	<select id="getCardType" parameterType="String" resultType="String">
+		select card_type from t_dic_cardtype where his_type=#{data}
+	</select>
+
+	<select id="getCertType" parameterType="String" resultType="String">
+		select cert_type from t_dic_certtype where his_type=#{data}
+	</select>
+	
+	<select id="getChannel" parameterType="String" resultType="String">
+		select channel_type from t_dic_channel where his_type=#{data}
+	</select>
+	
+	<select id="getCountry" parameterType="String" resultType="String">
+		select country_type from t_dic_country where his_type=#{data}
+	</select>
+	
+	<select id="getFeeType" parameterType="String" resultType="String">
+		select fee_type from t_dic_feetype where his_type=#{data}
+	</select>
+	
+	<select id="getRechargeType" parameterType="String" resultType="String">
+		select recharge_type from t_dic_rechargetype where his_type=#{data}
+	</select>
+	
+	<select id="getSex" parameterType="String" resultType="String">
+		select sex_type from t_dic_sex where his_type=#{data}
+	</select>
+	
+	<select id="getTimeType" parameterType="String" resultType="String">
+		select time_type from t_dic_time where his_type=#{data}
+	</select>
+	
+	<select id="getDocTitle" parameterType="String" resultType="String">
+		select title_type from t_dic_doctitle where his_type=#{data}
+	</select>
+</mapper>
+ 
+
