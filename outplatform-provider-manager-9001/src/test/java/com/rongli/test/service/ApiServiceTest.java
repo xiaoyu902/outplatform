@@ -18,9 +18,8 @@ public class ApiServiceTest {
 	
 	@Test
 	public void test1() {
-		JSONObject obj = (JSONObject) apiService.selectPatientList(1, 10, "", "");
+		JSONObject obj = (JSONObject) apiService.selectPatientList(1, 10, "", "", "2020-10-10", "2020-10-12");
 		System.out.println(obj.toJSONString());
 	}
-	
 	
 }

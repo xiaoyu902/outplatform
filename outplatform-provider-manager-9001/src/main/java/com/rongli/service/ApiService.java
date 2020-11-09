@@ -1,5 +1,6 @@
 package com.rongli.service;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
+import com.rongli.common.exception.BaseException;
+import com.rongli.common.util.DateUtil;
+import com.rongli.common.util.SpringUtil;
 import com.rongli.entities.ResultBody;
 import com.rongli.entities.params.Patient;
 import com.rongli.entities.params.PayEntity;
@@ -43,17 +47,27 @@ public class ApiService {
 	 * @param termId
 	 * @return
 	 */
-	public Object selectPatientList(Integer page, Integer limit, String name, String termId) {
+	public Object selectPatientList(Integer page, Integer limit, String name, String termId, String startDate, String endDate) {
 		if(page == null || page <= 0) {
 			page = 1;
 		}
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		if(!StringUtil.isEmpty(startDate) && !StringUtil.isEmpty(endDate)) {
+			if(startDate.equals(endDate)) {
+				startDate = 
+			}else {
+				startDate = DateUtil.formatDateStr(startDate);
+			}
+		}
+		
 		PageHelper.startPage(page, limit);
 		QueryWrapper<Patient> queryWrapper = new QueryWrapper<>();
 		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
 		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
+		queryWrapper.between(!StringUtil.isEmpty(startDate) && !StringUtil.isEmpty(endDate) , "trade_time", startDate, endDate);
 		List<Patient> patientList = patientMapper.selectList(queryWrapper);
 	
 		PageInfo<Patient> pageInfo = new PageInfo<>(patientList);
