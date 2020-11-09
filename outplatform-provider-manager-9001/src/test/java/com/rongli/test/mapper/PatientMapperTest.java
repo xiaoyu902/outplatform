@@ -1,4 +1,4 @@
-package com.rongli.test;
+package com.rongli.test.mapper;
 
 import java.util.List;
 

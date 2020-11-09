@@ -50,11 +50,13 @@ public class ApiService {
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
-		
 		PageHelper.startPage(page, limit);
-		List<JSONObject> patientList = patientMapper.selectListByNameAndTermId(name, termId);
+		QueryWrapper<Patient> queryWrapper = new QueryWrapper<>();
+		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
+		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
+		List<Patient> patientList = patientMapper.selectList(queryWrapper);
 	
-		PageInfo<JSONObject> pageInfo = new PageInfo<>(patientList);
+		PageInfo<Patient> pageInfo = new PageInfo<>(patientList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
 		obj.put("count", pageInfo.getTotal());
