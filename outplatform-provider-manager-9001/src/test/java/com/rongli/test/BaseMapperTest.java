@@ -1,20 +1,15 @@
 package com.rongli.test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rongli.Application;
 import com.rongli.entities.params.ServiceEntity;
-import com.rongli.mapper.primary.BaseMapper;
 import com.rongli.mapper.primary.ServeMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)

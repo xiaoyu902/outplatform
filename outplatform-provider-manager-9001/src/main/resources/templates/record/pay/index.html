@@ -7,7 +7,7 @@
 	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
-	<title>用户注册</title>
+	<title>缴费记录</title>
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-text">
@@ -23,6 +23,24 @@
 				<label class="layui-form-label">用户姓名</label>
 				<div class="layui-input-inline">
 					<input type="text" id="name" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">订单号</label>
+				<div class="layui-input-inline">
+					<input type="text" id="orderId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">支付流水</label>
+				<div class="layui-input-inline">
+					<input type="text" id="transactionNo" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">银行卡号</label>
+				<div class="layui-input-inline">
+					<input type="text" id="bankCardNo" class="layui-input">
 				</div>
 			</div>
 			<div class="layui-inline">
@@ -54,8 +72,11 @@ layui.config({
 		let getParam = function(){
 			//查询参数
 			let params = {
-				serviceId: $("#termId").val().trim(),
-				explain: $("#name").val().trim()
+				termId: $("#termId").val().trim(),
+				name: $("#name").val().trim(),
+				orderId: $("#orderId").val().trim(),
+				transactionNo: $("#transactionNo").val().trim(),
+				bankCardNo: $("#bankCardNo").val().trim()
 			};
 			return params;
 		}
@@ -87,41 +108,42 @@ layui.config({
 				,icon: 'layui-icon-tips'
 			}]
 			,where: getParam()
-			,url:'[[@{/trade/selectPatientList}]]'
+			,url:'[[@{/trade/selectPayList}]]'
 			,loading:true
 			,cols: [
 				[
 					{type: 'radio', fixed: 'left'}		
 					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
 					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
-					,{field:'termId', width:100, title: '终端ID'}
-					,{field:'tradeTime', width:200, title: '注册时间', sort: true}
+					,{field:'payTime', width:100, title: '支付时间'}
+					,{field:'termId', width:200, title: '终端ID'}
 					,{field:'name', width:100, title: '用户姓名'}
-					,{field:'sex', width:100, title: '性别', templet: function(res){
-						return res.sex=="1"?"男":res.sex=="2"?"女":"无";
-					}}
-					,{field:'birthday', width:150, title: '出生日期'}
-					,{field:'address', width:100, title: '地址'}
-					,{field:'mobile', width:150, title: '手机号'}
-					,{field:'country', width:100, title: '国籍'}
-					,{field:'nation', width:100, title: '民族'}
-					,{field:'photo', width:100, title: '照片', hide: true}
-					,{field:'patientType', width:100, title: '用户类型', templet: function(res){
-						return res.patientType=="0"?"成人":res.patientType=="1"?"儿童":"";
-					}}
-					,{field:'cardType', width:100, title: '卡类型', hide: true}
-					,{field:'cardNo', width:100, title: '卡号', hide: true}
-					,{field:'certificateType', width:100, title: '证件类型', hide: true}
-					,{field:'certificateNo', width:100, title: '证件号', hide: true}
-					,{field:'guardCertType', width:100, title: '监护人证件类型', hide: true}
-					,{field:'guardCertNo', width:100, title: '监护人证件号', hide: true}
-					,{field:'guardName', width:100, title: '监护人姓名', hide: true}
-					,{field:'patientId', width:100, title: '院内用户ID', hide: true}
+					,{field:'orderId', width:100, title: '订单号'}
+					,{field:'billId', width:150, title: '挂号订单号'}
+					,{field:'visitNo', width:100, title: '就诊号'}
+					,{field:'bankCardNo', width:150, title: '银行卡号'}
+					,{field:'transactionNo', width:100, title: '支付流水号'}
+					,{field:'channelType', width:100, title: '支付渠道'}
+					,{field:'payType', width:100, title: '支付类型'}
+					,{field:'totalFee', width:100, title: '待缴费总金额'}
+					,{field:'changeFee', width:100, title: '院内变更金额'}
+					,{field:'payableFee', width:100, title: '医院应付金额'}
+					,{field:'medicareFee', width:100, title: '医保统筹支付金额'}
+					,{field:'medFelfFee', width:100, title: '医保个账支付金额'}
+					,{field:'personFee', width:100, title: '用户应付金额', hide: true}
+					,{field:'feeType', width:100, title: '费用类别', hide: true}
+					,{field:'medicareParams', width:100, title: '医保预结算参数', hide: true}
+					,{field:'operatorId', width:100, title: '操作员', hide: true}
+					,{field:'patientId', width:100, title: '院内用户id', hide: true}
 					,{field:'medicalNo', width:100, title: '病历号', hide: true}
-					,{field:'createHealthCard', width:100, title: '电子健康卡标准', hide: true, templet: function(res){
-						return res.createHealthCard=="1"?"创建":"不创建";
-					}}
-					,{field:'qrCodeText', width:100, title: '电子健康卡二维码', hide: true}
+					,{field:'certificateType', width:100, title: '用户证件类型', hide: true}
+					,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
+					,{field:'cardType', width:100, title: '用户卡类型', hide: true}
+					,{field:'cardNo', width:100, title: '卡号', hide: true}
+					,{field:'receiptId', width:100, title: '收据号', hide: true}
+					,{field:'invoiceId', width:100, title: '发票号', hide: true}
+					,{field:'remark', width:100, title: '备注', hide: true}
+					,{field:'tradeTime', width:100, title: '交易时间', hide: true}
 				]
 			]
 		   	,page: true

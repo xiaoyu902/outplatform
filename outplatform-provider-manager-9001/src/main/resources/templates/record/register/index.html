@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/layui.css}" media="all">
+	<link rel="stylesheet" th:href="@{/layuiadmin/style/admin.css}" media="all">
+	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
+	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
+	
+	<title>挂号记录</title>
+</head>
+<body>
+<blockquote class="layui-elem-quote layui-text">
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">终端ID</label>
+				<div class="layui-input-inline">
+					<input type="text" id="termId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">用户姓名</label>
+				<div class="layui-input-inline">
+					<input type="text" id="name" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">挂号订单号</label>
+				<div class="layui-input-inline">
+					<input type="text" id="hospOrderId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">订单号</label>
+				<div class="layui-input-inline">
+					<input type="text" id="orderId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">支付流水</label>
+				<div class="layui-input-inline">
+					<input type="text" id="transactionNo" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">银行卡号</label>
+				<div class="layui-input-inline">
+					<input type="text" id="bankCardNo" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<button class="layui-btn" type="button" id="btn-query"><i class="layui-icon layui-icon-search"></i>搜索</button>
+			</div>
+		</div>
+	</form>
+</blockquote>
+<table id="tb" lay-filter="tb"></table>
+</body>
+<script th:src="@{/js/jquery-3.5.1.min.js}"></script>
+<script th:src="@{/js/Call_Ajaxtools.js}"></script>
+<script th:src="@{/js/axios.min.js}"></script>
+<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/layuiadmin/layui/layui.js}"></script>  
+<script th:inline="text">
+layui.config({
+    base: '[[@{/layuiadmin/}]]', //静态资源所在路径
+    version: new Date().getTime() //每次发布项目时，跟着改动下该属性值即可更新静态资源的缓存
+  }).extend({
+	    index: 'lib/index', //主入口模块
+	    formSelects: 'lib/extend/formSelects-v4'
+  }).use(['form','table','layer', 'formSelects'], function(){
+		let table = layui.table;
+		let form = layui.form;
+		let formSelects = layui.formSelects;
+		
+		// 搜索参数
+		let getParam = function(){
+			//查询参数
+			let params = {
+				termId: $("#termId").val().trim(),
+				name: $("#name").val().trim(),
+				orderId: $("#orderId").val().trim(),
+				transactionNo: $("#transactionNo").val().trim(),
+				bankCardNo: $("#bankCardNo").val().trim(),
+				bankCardNo: $("#hospOrderId").val().trim()
+			};
+			return params;
+		}
+		
+		
+		// 查询按钮
+		$('#btn-query').on('click', function(){
+			reload();
+		});
+		
+		// 回车查询
+		$("body").keydown(function() {
+		   if(event.keyCode == "13") {//keyCode=13是回车键
+				reload();
+				return false;
+			}
+		});
+		
+		
+		// 渲染表
+		table.render({
+			elem: '#tb'
+			,id:'table'
+			,method:'POST'
+			,toolbar: '#toolbar'
+			,defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+				title: '提示'
+				,layEvent: 'LAYTABLE_TIPS'
+				,icon: 'layui-icon-tips'
+			}]
+			,where: getParam()
+			,url:'[[@{/trade/selectRegisterList}]]'
+			,loading:true
+			,cols: [
+				[
+					{type: 'radio', fixed: 'left'}		
+					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
+					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
+					,{field:'payTime', width:100, title: '支付时间'}
+					,{field:'termId', width:200, title: '终端ID'}
+					,{field:'name', width:100, title: '用户姓名'}
+					,{field:'orderId', width:100, title: '订单号'}
+					,{field:'hospOrderId', width:150, title: '挂号订单号'}
+					,{field:'bankCardNo', width:100, title: '银行卡号'}
+					,{field:'transactionNo', width:100, title: '支付流水号'}
+					,{field:'payChannel', width:100, title: '支付渠道'}
+					,{field:'totalFee', width:100, title: '挂号费用总金额'}
+					,{field:'changeFee', width:100, title: '院内变更金额'}
+					,{field:'payableFee', width:100, title: '医院应付金额'}
+					,{field:'medicareFee', width:100, title: '医保统筹支付金额'}
+					,{field:'medFelfFee', width:100, title: '医保个账支付金额'}
+					,{field:'personFee', width:100, title: '用户应付金额', hide: true}
+					,{field:'feeType', width:100, title: '费用类别', hide: true}
+					,{field:'payType', width:100, title: '支付类型', hide: true}
+					,{field:'medicareParameter', width:100, title: '医保预结算参数', hide: true}
+					,{field:'operatorId', width:100, title: '操作员', hide: true}
+					,{field:'patientId', width:100, title: '院内用户ID', hide: true}
+					,{field:'medicalNo', width:100, title: '病历号', hide: true}
+					,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
+					,{field:'certificateType', width:100, title: '用户证件类型', hide: true}
+					,{field:'cardType', width:100, title: '卡类型', hide: true}
+					,{field:'cardNo', width:100, title: '卡号', hide: true}
+					,{field:'scheduleId', width:100, title: '排班ID', hide: true}
+					,{field:'timeId', width:100, title: '分时ID', hide: true}
+					,{field:'departmentName', width:100, title: '科室名', hide: true}
+					,{field:'doctorName', width:100, title: '医生名', hide: true}
+					,{field:'departmentId', width:100, title: '科室ID', hide: true}
+					,{field:'doctorId', width:100, title: '医生ID', hide: true}
+					,{field:'registerDate', width:100, title: '挂号时间', hide: true}
+					,{field:'noon', width:100, title: '时段', hide: true}
+					,{field:'startTime', width:100, title: '开始时间', hide: true}
+					,{field:'endTime', width:100, title: '结束时间', hide: true}
+					,{field:'visitFlag', width:100, title: 'flag', hide: true}
+					,{field:'levelCode', width:100, title: '挂号级别', hide: true}
+					,{field:'receiptId', width:100, title: '收据号', hide: true}
+					,{field:'invoiceId', width:100, title: '发票号', hide: true}
+					,{field:'sequenceNo', width:100, title: '排队序号', hide: true}
+					,{field:'visitAddress', width:100, title: '就诊地址', hide: true}
+					,{field:'remark', width:100, title: '备注', hide: true}
+					,{field:'tradeTime', width:100, title: '交易时间', hide: true}
+				]
+			]
+		   	,page: true
+		});
+		
+		// 重新渲染表
+		let reload = function(){
+			table.reload('table', {where: getParam()}, 'data');
+		}
+		
+		
+	});
+	
+	
+	
+	
+
+</script>
+
+</html>
+
