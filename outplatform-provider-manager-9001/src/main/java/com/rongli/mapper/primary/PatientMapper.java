@@ -16,5 +16,6 @@ public interface PatientMapper extends BaseMapper<Patient> {
 
 	@Select("SELECT * FROM v_api_create WHERE name LIKE #{name} AND term_id LIKE #{termId}")
 	public List<JSONObject> selectListByNameAndTermId(@Param("name") String name, @Param("termId") String termId);
+
 	
 }

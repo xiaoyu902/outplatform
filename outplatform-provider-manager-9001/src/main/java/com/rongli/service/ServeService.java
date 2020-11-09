@@ -69,8 +69,6 @@ public class ServeService {
 
 		if(StringUtil.isEmpty(serviceEntity.getSavedb())) {
 			serviceEntity.setSavedb("0");
-		}else {
-			serviceEntity.setSavedb("1");
 		}
 		
 		serveMapper.insert(serviceEntity);
