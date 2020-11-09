@@ -57,5 +57,5 @@ mybatis-plus:
   typeAliasesPackage: com.rongli.entities
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    cache-enabled: true
-    map-underscore-to-camel-case: true
+    cache-enabled: true # 开启二级缓存
+    map-underscore-to-camel-case: true # 开启驼峰命名

@@ -74,4 +74,10 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		return SpringUtil.getBean(InputDicMapper.class).getDocTitle(data);
 	}
 
+	@Override
+	public String getRegtype(String data) {
+		// TODO Auto-generated method stub
+		return SpringUtil.getBean(InputDicMapper.class).getRegType(data);
+	}
+
 }

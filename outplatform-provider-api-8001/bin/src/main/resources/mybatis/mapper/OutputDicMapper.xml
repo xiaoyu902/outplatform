@@ -71,6 +71,10 @@
 	<select id="getDocTitle" parameterType="String" resultType="String">
 		select title_type from t_dic_doctitle where his_type=#{data}
 	</select>
+	
+	<select id="getRegType" parameterType="String" resultType="String">
+		select reg_type from t_dic_regtype where his_type=#{data}
+	</select>
 </mapper>
  
 

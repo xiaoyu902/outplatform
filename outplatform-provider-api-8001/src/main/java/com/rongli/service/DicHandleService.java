@@ -22,4 +22,8 @@ public interface DicHandleService {
 	
 	public String getDocTitle(String data);
 	
+	public String getRegtype(String data);
+	
+	
+	
 }

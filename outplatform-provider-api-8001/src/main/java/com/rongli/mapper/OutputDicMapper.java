@@ -23,4 +23,6 @@ public interface OutputDicMapper {
 	public String getTimeType(@Param("data")String data);
 	
 	public String getDocTitle(@Param("data")String data);
+	
+	public String getRegType(@Param("data")String data);
 }
