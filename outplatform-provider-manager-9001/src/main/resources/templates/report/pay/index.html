@@ -7,57 +7,12 @@
 	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
-	<title>挂号记录</title>
+	<title>缴费记录</title>
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-text">
 	<form class="layui-form">
 		<div class="layui-form-item">
-			<div class="layui-inline">
-				<label class="layui-form-label">终端ID</label>
-				<div class="layui-input-inline">
-					<input type="text" id="termId" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">用户姓名</label>
-				<div class="layui-input-inline">
-					<input type="text" id="name" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">订单号</label>
-				<div class="layui-input-inline">
-					<input type="text" id="orderId" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">挂号订单号</label>
-				<div class="layui-input-inline">
-					<input type="text" id="hospOrderId" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">支付流水</label>
-				<div class="layui-input-inline">
-					<input type="text" id="transactionNo" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">银行卡号</label>
-				<div class="layui-input-inline">
-					<input type="text" id="bankCardNo" class="layui-input">
-				</div>
-			</div>
-			<div class="layui-inline">
-				<label class="layui-form-label">支付渠道</label>
-				<div class="layui-input-inline">
-					<select id="channelType" lay-filter="channelType" th:with="list=${@apiService.selectChannelList()}">
-						<option value=""></option>
-						<option  th:each="channel:${list}" th:value="${channel.channelType}" th:text="${channel.channelTypeDesc}"></option>
-					</select>
-				</div>
-			</div>
 			<div class="layui-inline">
 			 	<label class="layui-form-label">查询类别</label>
 			 	<div class="layui-input-block">
@@ -80,13 +35,48 @@
 		</div>
 	</form>
 </blockquote>
+<div class="layui-row">
+	<div class="layui-col-md8 layui-col-xs12">
+		<div class="title">
+			<p>交易趋势图</p>
+		</div>
+		<div class="body">
+			<div class="layui-tab layui-tab-brief" lay-filter="line">
+			  <ul class="layui-tab-title">
+				<li lay-id="0" id="count" class="layui-this">按金额</li>
+				<li lay-id="1" id="sum">按笔数</li>
+			  </ul>
+			  <div class="layui-tab-content">
+				<div class="layui-tab-item layui-show" id="line" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+			  </div>
+			</div> 
+		</div>
+	</div>
+	<div class="layui-col-md4 layui-col-xs12">
+		<div class="title">
+			<p>交易汇总占比</p>
+		</div>
+		<div class="body">
+			<div class="layui-tab layui-tab-brief" lay-filter="pie">
+			  <ul class="layui-tab-title">
+				<li lay-id="0" class="layui-this">按金额</li>
+				<li lay-id="1">按笔数</li>
+			  </ul>
+			  <div class="layui-tab-content">
+				<div class="layui-tab-item layui-show" id="pie" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+			  </div>
+			</div> 
+		</div>
+	</div>
+</div>
 <table id="tb" lay-filter="tb"></table>
 </body>
 <script th:src="@{/js/jquery-3.5.1.min.js}"></script>
 <script th:src="@{/js/Call_Ajaxtools.js}"></script>
 <script th:src="@{/js/axios.min.js}"></script>
 <script th:src="@{/js/C1.js}"></script>   
-<script th:src="@{/layuiadmin/layui/layui.js}"></script>  
+<script th:src="@{/layuiadmin/layui/layui.js}"></script> 
+<script th:src="@{/js/highcharts/highcharts.js?a=1}"></script> 
 <script th:inline="text">
 layui.config({
     base: '[[@{/layuiadmin/}]]', //静态资源所在路径
@@ -94,12 +84,139 @@ layui.config({
   }).extend({
 	    index: 'lib/index', //主入口模块
 	    formSelects: 'lib/extend/formSelects-v4'
-  }).use(['form','table','layer', 'formSelects', 'laydate'], function(){
+  }).use(['form','table','layer', 'formSelects', 'laydate', 'element'], function(){
 		let table = layui.table;
 		let form = layui.form;
 		let formSelects = layui.formSelects;
 		let laydate = layui.laydate;
+		let element = layui.element;
+		let m_obj;
 		
+		// 监听折线图切换
+		element.on('tab(line)', function(data){
+			if(data.index==0){ //金额
+				var array = [];
+				for(var i=0;i<m_obj.line.data.length;i++){
+					var obj = m_obj.line.data[i];
+					var data = {};
+					data.name = obj.channelTypeDesc;
+					data.data = obj.sum;
+					array.push(data);
+				}
+				showLineChart("交易金额",m_obj.line.xAxis,array);
+			}else{
+				var array=[];
+				for(var i=0;i<m_obj.line.data.length;i++){
+					var obj=m_obj.line.data[i];
+					var data={};
+					data.name=obj.channelTypeDesc;
+					data.data=obj.count;
+					array.push(data);
+				}
+				showLineChart("交易笔数",m_obj.line.xAxis,array);
+			}
+		});
+		// 加载折线图数据
+		function showLineChart(title,xAxis,data){
+			var json={
+				chart: {
+					type: 'line'
+				},
+				title: {
+					text: '交易占比'
+				},
+				xAxis: {
+					categories: xAxis
+				},
+				yAxis: {
+					title: {
+						text: title
+					}
+				},
+			 　	colors:['#4dd3b9','#fdd67f','#ffaca8','#64bcec'],
+				legend: {
+					layout: 'vertical',
+					align: 'right',
+					verticalAlign: 'middle'
+				},
+				credits: {
+					enabled: false //设置不显示右下角的highchart.com
+				},
+				exporting: {
+					enabled:false //设置不显示右上角的打印
+				},
+				series: data
+			}
+			Highcharts.chart('line',json);
+		}
+		
+		// 监听饼状图切换
+		element.on('tab(pie)', function(data){
+			if(data.index==0){//金额
+				var array=[];
+				for(var i=0;i<m_obj.pie.length;i++){
+					var obj=m_obj.pie[i];
+					var data={};
+					data.name=obj.channelTypeDesc;
+					data.y=Math.abs(obj.sum);
+					array.push(data);
+				}
+				showPieChart("交易金额 ",array);
+			}else{
+				var array=[];
+				for(var i=0;i<m_obj.pie.length;i++){
+					var obj=m_obj.pie[i];
+					var data={};
+					data.name=obj.channelTypeDesc;
+					data.y=Math.abs(obj.count);
+					array.push(data);
+				}
+				showPieChart("交易笔数 ",array);
+			}
+		});
+		
+		// 加载饼状图数据
+		function showPieChart(title,data){
+			var json={
+				chart: {
+					plotBackgroundColor: null,
+					plotBorderWidth: null,
+					plotShadow: false,
+					type: 'pie'
+				},
+				title: {
+					text: title
+				},
+				tooltip: {
+					pointFormat: '{series.name}:<b>{point.percentage:.1f}%</b>'
+				},
+				　colors:['#4dd3b9','#fdd67f','#ffaca8','#64bcec'],
+				plotOptions: {
+					pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+							enabled: true,
+							format: '<b>{point.name}</b>: {point.percentage:.1f} %<br>{point.y}',
+							style: {
+								color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+							}
+						}
+					}
+				},
+				credits: {
+					enabled: false//设置不显示右下角的highchart.com
+				},
+				series: [{
+					name: '交易趋势',
+					colorByPoint: true,
+					data: data
+				}]
+			}
+			Highcharts.chart('pie',json);
+		}
+		
+		// 时间类型
 		laydate.render({
 			elem: '#tradeTime'
 			,type: 'year'
@@ -169,13 +286,6 @@ layui.config({
 			}
 			//查询参数
 			let params = {
-				termId: $("#termId").val().trim(),
-				name: $("#name").val().trim(),
-				orderId: $("#orderId").val().trim(),
-				hospOrderId: $("#hospOrderId").val().trim(),
-				transactionNo: $("#transactionNo").val().trim(),
-				bankCardNo: $("#bankCardNo").val().trim(),
-				channelType: $("#channelType").val().trim(),
 				datetype: datetype,
 				startDate: startDate,
 				endDate: endDate
@@ -210,58 +320,70 @@ layui.config({
 				,icon: 'layui-icon-tips'
 			}]
 			,where: getParam()
-			,url:'[[@{/trade/selectRegisterList}]]'
+			,url:'[[@{/trade/payConsole}]]'
 			,loading:true
 			,cols: [
 				[
-					{type: 'radio', fixed: 'left'}		
+					{type: 'radio', fixed: 'left'}
 					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
 					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
 					,{field:'payTime', width:100, title: '支付时间'}
 					,{field:'termId', width:200, title: '终端ID'}
 					,{field:'name', width:100, title: '用户姓名'}
 					,{field:'orderId', width:100, title: '订单号'}
-					,{field:'hospOrderId', width:150, title: '挂号订单号'}
-					,{field:'bankCardNo', width:100, title: '银行卡号'}
+					,{field:'billId', width:150, title: '挂号订单号'}
+					,{field:'visitNo', width:100, title: '就诊号'}
+					,{field:'bankCardNo', width:150, title: '银行卡号'}
 					,{field:'transactionNo', width:100, title: '支付流水号'}
 					,{field:'channelTypeDesc', width:100, title: '支付渠道'}
-					,{field:'totalFee', width:100, title: '挂号费用总金额'}
+					,{field:'payTypeDesc', width:100, title: '支付类型'}
+					,{field:'totalFee', width:100, title: '待缴费总金额'}
 					,{field:'changeFee', width:100, title: '院内变更金额'}
 					,{field:'payableFee', width:100, title: '医院应付金额'}
 					,{field:'medicareFee', width:100, title: '医保统筹支付金额'}
 					,{field:'medFelfFee', width:100, title: '医保个账支付金额'}
 					,{field:'personFee', width:100, title: '用户应付金额', hide: true}
-					,{field:'payTypeDesc', width:100, title: '支付类型', hide: true}
-					,{field:'regDesc', width:100, title: '注册类型', hide: true}
-					,{field:'medicareParameter', width:100, title: '医保预结算参数', hide: true}
+					,{field:'feeTypeDesc', width:100, title: '费用类别', hide: true}
+					,{field:'medicareParams', width:100, title: '医保预结算参数', hide: true}
 					,{field:'operatorId', width:100, title: '操作员', hide: true}
-					,{field:'patientId', width:100, title: '院内用户ID', hide: true}
+					,{field:'patientId', width:100, title: '院内用户id', hide: true}
 					,{field:'medicalNo', width:100, title: '病历号', hide: true}
-					,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
 					,{field:'certTypeDesc', width:100, title: '用户证件类型', hide: true}
-					,{field:'cardTypeDesc', width:100, title: '卡类型', hide: true}
+					,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
+					,{field:'cardTypeDesc', width:100, title: '用户卡类型', hide: true}
 					,{field:'cardNo', width:100, title: '卡号', hide: true}
-					,{field:'scheduleId', width:100, title: '排班ID', hide: true}
-					,{field:'timeId', width:100, title: '分时ID', hide: true}
-					,{field:'departmentName', width:100, title: '科室名', hide: true}
-					,{field:'doctorName', width:100, title: '医生名', hide: true}
-					,{field:'departmentId', width:100, title: '科室ID', hide: true}
-					,{field:'doctorId', width:100, title: '医生ID', hide: true}
-					,{field:'registerDate', width:100, title: '挂号时间', hide: true}
-					,{field:'noon', width:100, title: '时段', hide: true}
-					,{field:'startTime', width:100, title: '开始时间', hide: true}
-					,{field:'endTime', width:100, title: '结束时间', hide: true}
-					,{field:'visitFlag', width:100, title: 'flag', hide: true}
-					,{field:'levelCode', width:100, title: '挂号级别', hide: true}
 					,{field:'receiptId', width:100, title: '收据号', hide: true}
 					,{field:'invoiceId', width:100, title: '发票号', hide: true}
-					,{field:'sequenceNo', width:100, title: '排队序号', hide: true}
-					,{field:'visitAddress', width:100, title: '就诊地址', hide: true}
 					,{field:'remark', width:100, title: '备注', hide: true}
 					,{field:'tradeTime', width:100, title: '交易时间', hide: true}
 				]
 			]
 		   	,page: true
+			,done: function (res, curr, count) {
+				console.log(res);
+				m_obj = res;
+				var lineArr=[];
+				for(var i=0;i<res.line.data.length;i++){
+					var obj=res.line.data[i];
+					var data={};
+					data.name=obj.channelTypeDesc;
+					data.data=obj.sum;
+					lineArr.push(data);
+				}
+				element.tabChange('line', '0');
+				showLineChart("交易金额",res.line.xAxis,lineArr);
+				
+				var pieArr=[];
+				for(var i=0;i<res.pie.length;i++){
+					var obj=res.pie[i];
+					var data={};
+					data.name=obj.channelTypeDesc;
+					data.y=Math.abs(obj.sum);
+					pieArr.push(data);
+				}
+				element.tabChange('pie', '0');
+				showPieChart("交易金额 ",pieArr);
+			}
 		});
 		
 		// 重新渲染表

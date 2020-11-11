@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("t_api_register")
+@TableName("v_api_register")
 public class Register implements Serializable {
 
 	private static final long serialVersionUID = 2964957932061057873L;

@@ -70,6 +70,10 @@ public class ServeService {
 		if(StringUtil.isEmpty(serviceEntity.getSavedb())) {
 			serviceEntity.setSavedb("0");
 		}
+		ServiceEntity service = serveMapper.selectById(serviceEntity.getServiceId());
+		if(service == null) {
+			new BaseException("服务ID重复！");
+		}
 		
 		serveMapper.insert(serviceEntity);
 		

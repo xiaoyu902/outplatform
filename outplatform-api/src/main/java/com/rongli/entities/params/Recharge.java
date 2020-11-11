@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("t_api_recharge")
+@TableName("v_api_recharge")
 public class Recharge implements Serializable {
 
 	private static final long serialVersionUID = 3922745716859706097L;

@@ -1,24 +1,25 @@
 package com.rongli.service;
 
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.util.StringUtil;
+import com.rongli.common.util.StringUtil;
 import com.rongli.common.exception.BaseException;
 import com.rongli.common.util.DateUtil;
-import com.rongli.common.util.SpringUtil;
 import com.rongli.entities.ResultBody;
-import com.rongli.entities.params.Patient;
 import com.rongli.entities.params.PayEntity;
 import com.rongli.entities.params.Recharge;
 import com.rongli.entities.params.Register;
+import com.rongli.mapper.primary.DictMapper;
 import com.rongli.mapper.primary.PatientMapper;
 import com.rongli.mapper.primary.PayMapper;
 import com.rongli.mapper.primary.RechargeMapper;
@@ -39,6 +40,9 @@ public class ApiService {
 	@Autowired
 	private RegisterMapper registerMapper;
 	
+	@Autowired
+	private DictMapper dictMapper;
+	
 	/**
 	 * 查询用户注册列表
 	 * @param page
@@ -46,31 +50,39 @@ public class ApiService {
 	 * @param name
 	 * @param termId
 	 * @return
+	 * @throws ParseException 
 	 */
-	public Object selectPatientList(Integer page, Integer limit, String name, String termId, String startDate, String endDate) {
+	public Object selectPatientList(Integer page, Integer limit, // 分页
+			String name, String termId, // 模糊查询
+			String datetype, String startDate, String endDate){ // 时间范围
+		
 		if(page == null || page <= 0) {
 			page = 1;
 		}
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-		if(!StringUtil.isEmpty(startDate) && !StringUtil.isEmpty(endDate)) {
-			if(startDate.equals(endDate)) {
-				startDate = 
-			}else {
-				startDate = DateUtil.formatDateStr(startDate);
+		if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)) {
+			if(StringUtil.compare("y", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				startDate = DateUtil.getYearFirst(Integer.parseInt(startDate));
+				endDate = DateUtil.getYearLast(Integer.parseInt(endDate));
+			}else if(StringUtil.compare("m", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				List<String> datelist = DateUtil.getMonthFullDay(startDate);
+				startDate = datelist.get(0);
+				endDate = datelist.get(datelist.size()-1);
 			}
+			startDate += " 00:00:00";
+			endDate += " 23:59:59";
 		}
-		
+
 		PageHelper.startPage(page, limit);
-		QueryWrapper<Patient> queryWrapper = new QueryWrapper<>();
-		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
-		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
-		queryWrapper.between(!StringUtil.isEmpty(startDate) && !StringUtil.isEmpty(endDate) , "trade_time", startDate, endDate);
-		List<Patient> patientList = patientMapper.selectList(queryWrapper);
+		List<JSONObject> patientList = patientMapper.selectPatientList(name, termId, startDate, endDate);
 	
-		PageInfo<Patient> pageInfo = new PageInfo<>(patientList);
+		PageInfo<JSONObject> pageInfo = new PageInfo<>(patientList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
 		obj.put("count", pageInfo.getTotal());
@@ -80,7 +92,7 @@ public class ApiService {
 	}
 	
 	/**
-	 * 查询支付列表
+	 * 查询缴费列表
 	 * @param page
 	 * @param limit
 	 * @param name
@@ -91,7 +103,8 @@ public class ApiService {
 	 * @return
 	 */
 	public Object selectPayList(Integer page, Integer limit,
-			String name, String termId, String orderId, String transactionNo, String bankCardNo) {
+			String name, String termId, String orderId, String billId, String transactionNo, String bankCardNo, String channelType,
+			String datetype, String startDate, String endDate) {
 		
 		if(page == null || page <= 0) {
 			page = 1;
@@ -99,17 +112,27 @@ public class ApiService {
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
+		if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)) {
+			if(StringUtil.compare("y", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				startDate = DateUtil.getYearFirst(Integer.parseInt(startDate));
+				endDate = DateUtil.getYearLast(Integer.parseInt(endDate));
+			}else if(StringUtil.compare("m", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				List<String> datelist = DateUtil.getMonthFullDay(startDate);
+				startDate = datelist.get(0);
+				endDate = datelist.get(datelist.size()-1);
+			}
+			startDate += " 00:00:00";
+			endDate += " 23:59:59";
+		}
 		
 		PageHelper.startPage(page, limit);
-		QueryWrapper<PayEntity> queryWrapper = new QueryWrapper<>();
-		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
-		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
-		queryWrapper.like(!StringUtil.isEmpty(orderId), "order_id", orderId);
-		queryWrapper.like(!StringUtil.isEmpty(transactionNo), "transaction_no", transactionNo);
-		queryWrapper.like(!StringUtil.isEmpty(bankCardNo), "bank_card_no", bankCardNo);
-		List<PayEntity> payList = payMapper.selectList(queryWrapper);
-		
-		PageInfo<PayEntity> pageInfo = new PageInfo<>(payList);
+		List<JSONObject> payList = payMapper.selectPayList(name, termId, orderId, billId, transactionNo, bankCardNo, channelType, datetype, startDate, endDate);
+
+		PageInfo<JSONObject> pageInfo = new PageInfo<>(payList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
 		obj.put("count", pageInfo.getTotal());
@@ -130,7 +153,8 @@ public class ApiService {
 	 * @return
 	 */
 	public Object selectRechargeList(Integer page, Integer limit,
-			String name, String termId, String orderId, String transactionNo, String bankCardNo) {
+			String name, String termId, String orderId, String transactionNo, String bankCardNo, String channelType,
+			String datetype, String startDate, String endDate) {
 		
 		if(page == null || page <= 0) {
 			page = 1;
@@ -138,17 +162,27 @@ public class ApiService {
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
+		if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)) {
+			if(StringUtil.compare("y", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				startDate = DateUtil.getYearFirst(Integer.parseInt(startDate));
+				endDate = DateUtil.getYearLast(Integer.parseInt(endDate));
+			}else if(StringUtil.compare("m", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				List<String> datelist = DateUtil.getMonthFullDay(startDate);
+				startDate = datelist.get(0);
+				endDate = datelist.get(datelist.size()-1);
+			}
+			startDate += " 00:00:00";
+			endDate += " 23:59:59";
+		}
 		
 		PageHelper.startPage(page, limit);
-		QueryWrapper<Recharge> queryWrapper = new QueryWrapper<>();
-		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
-		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
-		queryWrapper.like(!StringUtil.isEmpty(orderId), "order_id", orderId);
-		queryWrapper.like(!StringUtil.isEmpty(transactionNo), "transaction_no", transactionNo);
-		queryWrapper.like(!StringUtil.isEmpty(bankCardNo), "bank_card_no", bankCardNo);
-		List<Recharge> rechargeList = rechargeMapper.selectList(queryWrapper);
+		List<JSONObject> rechargeList = rechargeMapper.selectRechargeList(name, termId, orderId, transactionNo, bankCardNo, channelType, datetype, startDate, endDate);
 		
-		PageInfo<Recharge> pageInfo = new PageInfo<>(rechargeList);
+		PageInfo<JSONObject> pageInfo = new PageInfo<>(rechargeList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
 		obj.put("count", pageInfo.getTotal());
@@ -169,7 +203,8 @@ public class ApiService {
 	 * @return
 	 */
 	public Object selectRegisterList(Integer page, Integer limit,
-			String name, String termId, String orderId, String transactionNo, String bankCardNo, String hospOrderId) {
+			String name, String termId, String orderId, String hospOrderId, String transactionNo, String bankCardNo, String channelType,
+			String datetype, String startDate, String endDate) {
 		
 		if(page == null || page <= 0) {
 			page = 1;
@@ -177,18 +212,27 @@ public class ApiService {
 		if(limit == null || limit <= 0) {
 			limit = 10;
 		}
+		if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)) {
+			if(StringUtil.compare("y", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				startDate = DateUtil.getYearFirst(Integer.parseInt(startDate));
+				endDate = DateUtil.getYearLast(Integer.parseInt(endDate));
+			}else if(StringUtil.compare("m", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				List<String> datelist = DateUtil.getMonthFullDay(startDate);
+				startDate = datelist.get(0);
+				endDate = datelist.get(datelist.size()-1);
+			}
+			startDate += " 00:00:00";
+			endDate += " 23:59:59";
+		}
 		
 		PageHelper.startPage(page, limit);
-		QueryWrapper<Register> queryWrapper = new QueryWrapper<>();
-		queryWrapper.like(!StringUtil.isEmpty(name), "name", name);
-		queryWrapper.like(!StringUtil.isEmpty(termId), "term_id", termId);
-		queryWrapper.like(!StringUtil.isEmpty(orderId), "order_id", orderId);
-		queryWrapper.like(!StringUtil.isEmpty(transactionNo), "transaction_no", transactionNo);
-		queryWrapper.like(!StringUtil.isEmpty(bankCardNo), "bank_card_no", bankCardNo);
-		queryWrapper.like(!StringUtil.isEmpty(hospOrderId), "hosp_order_id", hospOrderId);
-		List<Register> registerList = registerMapper.selectList(queryWrapper);
+		List<JSONObject> registerList = registerMapper.selectRegisterList(name, termId, orderId, hospOrderId, transactionNo, bankCardNo, channelType, datetype, startDate, endDate);
 		
-		PageInfo<Register> pageInfo = new PageInfo<>(registerList);
+		PageInfo<JSONObject> pageInfo = new PageInfo<>(registerList);
 		JSONObject obj = new JSONObject();
 		obj.putAll(ResultBody.success().toMap());
 		obj.put("count", pageInfo.getTotal());
@@ -196,4 +240,70 @@ public class ApiService {
 		
 		return obj;
 	}
+	
+	/**
+	 * 支付渠道
+	 * @return
+	 */
+	public List<JSONObject> selectChannelList() {
+		return dictMapper.selectChannelList();
+	}
+
+	/**
+	 * 缴费统计
+	 * @param datetype
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public Object payConsole(Integer page, Integer limit, String datetype, String startDate, String endDate) {
+
+		if(page == null || page <= 0) {
+			page = 1;
+		}
+		if(limit == null || limit <= 0) {
+			limit = 10;
+		}
+		if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)) {
+			if(StringUtil.compare("y", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				startDate = DateUtil.getYearFirst(Integer.parseInt(startDate));
+				endDate = DateUtil.getYearLast(Integer.parseInt(endDate));
+			}else if(StringUtil.compare("m", datetype)) {
+				if(!StringUtil.compare(startDate, endDate))
+					throw new BaseException("日期格式错误");
+				List<String> datelist = DateUtil.getMonthFullDay(startDate);
+				startDate = datelist.get(0);
+				endDate = datelist.get(datelist.size()-1);
+			}
+			startDate += " 00:00:00";
+			endDate += " 23:59:59";
+		}
+		
+		PageHelper.startPage(page, limit);
+		List<JSONObject> payList = payMapper.selectPayList(null, null, null, null, null, null, null, datetype, startDate, endDate);
+		
+		PageInfo<JSONObject> pageInfo = new PageInfo<>(payList);
+		JSONObject obj = new JSONObject();
+		obj.putAll(ResultBody.success().toMap());
+		obj.put("count", pageInfo.getTotal());
+		obj.put("data", pageInfo.getList());
+		
+		List<JSONObject> lineList = payMapper.selectCountAndSumByDateAndChannel(datetype, startDate, endDate);
+		JSONObject lineObj = new JSONObject();
+		lineObj.put("data", lineList);
+		List<String> dateList = new ArrayList<>();
+		for (JSONObject pay: payList) {
+			String tradeTime = pay.getString("tradeTime");
+			dateList.add(tradeTime);
+		}
+		lineObj.put("xAxis", dateList);
+		
+		obj.put("line", lineObj);
+		obj.put("pie", payMapper.selectCountAndSumByChannel(datetype, startDate, endDate));
+		
+		return obj;
+	}
+	
 }

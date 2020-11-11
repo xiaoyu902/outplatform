@@ -9,22 +9,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rongli.entities.params.Patient;
-import com.rongli.mapper.primary.PatientMapper;
+import com.rongli.mapper.primary.PayMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) //servlet环境，随机端口)
-public class PatientMapperTest {
+public class PayMapperTest {
 
 	@Autowired
-	private PatientMapper patientMapper;
+	private PayMapper payMapper;
 	
 	@Test
 	public void test1() {
-		//List<JSONObject> patientList = patientMapper.selectListByNameAndTermId("%测%", "%%");
-		//System.out.println(patientList.get(0).toJSONString());
-		List<JSONObject> list = patientMapper.selectPatientList("测", "", "2020-11-01 00:00:00", "2020-11-30 00:00:00");
-		System.out.println(list.get(0).toJSONString());
-		System.out.println(list.size());
+		List<JSONObject> payList = payMapper.selectCountAndSumByDateAndChannel("y", "2020-01-01 00:00:00", "2020-11-11 23:59:59");
+		System.out.println(payList.get(0).toJSONString());
 	}
+	
 }

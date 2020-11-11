@@ -306,64 +306,6 @@ layui.config({
 		let form = layui.form;
 		let formSelects = layui.formSelects;
 		
-		let loadColumnList = function() {
-			axios.post('/trade/findColumnListByTable?tableName=' + $("#tableName").val()).then( res => {
-				res = res.data;
-				console.log(res);
-				if(res.code == "0") {
-					columnList = res.data;
-					// 修改：不存储时，字段不存。存储且改变表时，所有tr都更新字段列表，当前dbfield匹配则选中，不匹配则赋值空
-					// 更新字段列表
-					let input_trs = $("#inputbox").children();
-					let output_trs = $("#outputbox").children();
-					let _tr;
-					let dbfieldValue;
-					let isEmpty = true;
-					for(let i=0;i< input_trs.length + output_trs.length;i++){
-						if(i >= input_trs.length){
-							_tr = $(output_trs[i-input_trs.length]);
-						}else{
-							_tr = $(input_trs[i]);
-						}
-						dbfieldValue = _tr.find(".dbfield").attr("value");
-						_tr.find(".dbfield").html('');
-						_tr.find(".dbfield").append('<option value="">无</option>');
-						isEmpty = true;
-						for(let j=0;j<columnList.length;j++){
-							if(dbfieldValue == columnList[j].name) {
-								_tr.find(".dbfield").append('<option selected value="'+columnList[j].name+'">'+columnList[j].name+'</option>');
-								if(_tr.find(".explain").val().trim() == ""){
-									_tr.find(".explain").val(columnList[j].comment)
-								}
-								isEmpty = false;
-							}else{
-								_tr.find(".dbfield").append('<option value="'+columnList[j].name+'">'+columnList[j].name+'</option>');
-							}
-						}
-						if(isEmpty){
-							_tr.find(".dbfield").val('');
-						}
-					}
-					
-				}
-			})
-		}
-		
-		
-		let cleanColumnList = function(){
-			let input_trs = $("#inputbox").children();
-			let output_trs = $("#outputbox").children();
-			let _tr;
-			for(let i=0;i< input_trs.length + output_trs.length;i++){
-				if(i >= input_trs.length){
-					_tr = $(output_trs[i-input_trs.length]);
-				}else{
-					_tr = $(input_trs[i]);
-				}
-				_tr.find(".dbfield").html('');
-				_tr.find(".dbfield").append('<option value="">无</option>');
-			}
-		}
 		
 		// 监听存储表的改变
 		form.on('select(tableName)', function(data){
@@ -1018,8 +960,10 @@ layui.config({
 					layui.table.reload('table', {where: getParam()}, 'data');
 					layer.closeAll();
 				});
-			}else {
+			}else if(res.msg){
 				layer.msg(res.msg);
+			}else{
+				layer.msg("登录过期，请刷新重试！")
 			}
 		})
 		.catch(function (e) {
@@ -1029,7 +973,67 @@ layui.config({
 		layui.layer.close(loadIndex);
 	}
 	
+	// 加载字段列表
+	let loadColumnList = function() {
+		axios.post('/trade/findColumnListByTable?tableName=' + $("#tableName").val()).then( res => {
+			res = res.data;
+			console.log(res);
+			if(res.code == "0") {
+				columnList = res.data;
+				// 修改：不存储时，字段不存。存储且改变表时，所有tr都更新字段列表，当前dbfield匹配则选中，不匹配则赋值空
+				// 更新字段列表
+				let input_trs = $("#inputbox").children();
+				let output_trs = $("#outputbox").children();
+				let _tr;
+				let dbfieldValue;
+				let isEmpty = true;
+				for(let i=0;i< input_trs.length + output_trs.length;i++){
+					if(i >= input_trs.length){
+						_tr = $(output_trs[i-input_trs.length]);
+					}else{
+						_tr = $(input_trs[i]);
+					}
+					dbfieldValue = _tr.find(".dbfield").attr("value");
+					_tr.find(".dbfield").html('');
+					_tr.find(".dbfield").append('<option value="">无</option>');
+					isEmpty = true;
+					for(let j=0;j<columnList.length;j++){
+						if(dbfieldValue == columnList[j].name) {
+							_tr.find(".dbfield").append('<option selected value="'+columnList[j].name+'">'+columnList[j].name+'</option>');
+							if(_tr.find(".explain").val().trim() == ""){
+								_tr.find(".explain").val(columnList[j].comment)
+							}
+							isEmpty = false;
+						}else{
+							_tr.find(".dbfield").append('<option value="'+columnList[j].name+'">'+columnList[j].name+'</option>');
+						}
+					}
+					if(isEmpty){
+						_tr.find(".dbfield").val('');
+					}
+				}
+				
+			}
+		})
+	}
 	
+	// 清空字段列表
+	let cleanColumnList = function(){
+		let input_trs = $("#inputbox").children();
+		let output_trs = $("#outputbox").children();
+		let _tr;
+		for(let i=0;i< input_trs.length + output_trs.length;i++){
+			if(i >= input_trs.length){
+				_tr = $(output_trs[i-input_trs.length]);
+			}else{
+				_tr = $(input_trs[i]);
+			}
+			_tr.find(".dbfield").html('');
+			_tr.find(".dbfield").append('<option value="">无</option>');
+		}
+	}
+	
+	// 智能解析xml
 	let parseXml = function(type) {
 		var index = layer.confirm('解析会清空表格，确认解析？', {
 			btn: ['确认','取消'] //按钮
@@ -1056,18 +1060,20 @@ layui.config({
 				for(let i=0;i<outputRules.length;i++) {
 					let reg = /\$\{type\}/g;
 					_tr = $($("#inputTemplate").html().replace(reg, 'output'));
-					_tr.find(".changeRuler").val(outputRules[i]);
+					_tr.find(".codeRuler").val(outputRules[i]);
 					_tr.find(".dbfield").attr("onchange", "changeColumn(this,'')")
 					$("#outputbox").append(_tr);
 					_tr.find("button").first().click();
 				}
 			}
+			loadColumnList();
 			layer.close(index);
 		}, function(){
 			layer.close(index);
 		});
 	}
 	
+	// 递归拼接路径
 	let inputRules = [];
 	let outputRules = [];
 	let getRules = function(preRule, _node, type){

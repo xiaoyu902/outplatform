@@ -64,7 +64,7 @@ public class UserOnlineMonitor {
     public static void login(String useraccount) {
     	 UserOnlineMonitor user=userOnlineHashMap.get(useraccount);//判断是否存在已登录账户
          if(user!=null&&user.session.isOpen()) {
-         	senMessage(ResultBody.failure("您的账号在其他终端登陆，您已被下线，请重新登录!").toString(), user.session);
+         	//senMessage(ResultBody.failure("您的账号在其他终端登陆，您已被下线，请重新登录!").toString(), user.session);
          	user.onClose();//退出登录
          }
     }

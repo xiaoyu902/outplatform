@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongli.mapper.primary.PayMapper">
+
+	<cache-ref namespace="com.rongli.mapper.primary.PayMapper"/>
+
+	<select id="selectPayList" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT * 
+		FROM v_api_pay 
+		<where>
+			<if test="name != null and name != ''">
+				AND name LIKE CONCAT('%',#{name},'%') 
+			</if>
+			<if test="termId != null and termId != ''">
+				AND term_id LIKE CONCAT('%',#{termId},'%') 
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND order_id LIKE CONCAT('%',#{orderId},'%') 
+			</if>
+			<if test="billId != null and billId != ''">
+				AND bill_id LIKE CONCAT('%',#{billId},'%') 
+			</if>
+			<if test="transactionNo != null and transactionNo != ''">
+				AND transaction_no LIKE CONCAT('%',#{transactionNo},'%') 
+			</if>
+			<if test="bankCardNo != null and bankCardNo != ''">
+				AND bank_card_no LIKE CONCAT('%',#{bankCardNo},'%') 
+			</if>
+			<if test="channelType != null and channelType != ''">
+				AND channel_type = #{channelType} 
+			</if>
+			<if test="startDate != null and startDate != ''
+				and endDate != null and endDate != ''">
+				AND trade_time BETWEEN #{startDate} and #{endDate}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectCountAndSumByDateAndChannel" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			COUNT(0) AS count,
+			SUM(total_fee) AS sum,
+			channel_type,
+			channel_type_desc
+			<if test="datetype.equals('y')">
+				, DATE_FORMAT(trade_time,'%Y') as trade_time 
+			</if>
+			<if test="datetype.equals('m')">
+				, DATE_FORMAT(trade_time,'%Y-%m') as trade_time 
+			</if>
+			<if test="datetype.equals('d')">
+				, DATE_FORMAT(trade_time,'%Y-%m-%d') as trade_time 
+			</if>
+		FROM v_api_pay 
+		WHERE 
+			trade_time BETWEEN #{startDate} and #{endDate} 
+		GROUP BY trade_time, channel_type
+		ORDER BY trade_time DESC 
+	</select>
+	
+	<select id="selectCountAndSumByChannel" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			COUNT(0) AS count,
+			SUM(total_fee) AS sum,
+			channel_type,
+			channel_type_desc
+			<if test="datetype.equals('y')">
+				, DATE_FORMAT(trade_time,'%Y') as trade_time 
+			</if>
+			<if test="datetype.equals('m')">
+				, DATE_FORMAT(trade_time,'%Y-%m') as trade_time 
+			</if>
+			<if test="datetype.equals('d')">
+				, DATE_FORMAT(trade_time,'%Y-%m-%d') as trade_time 
+			</if>
+		FROM v_api_pay 
+		WHERE 
+			trade_time BETWEEN #{startDate} and #{endDate} 
+		GROUP BY channel_type
+		ORDER BY trade_time DESC 
+	</select>
+</mapper>

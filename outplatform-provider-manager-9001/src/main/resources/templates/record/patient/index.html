@@ -8,6 +8,8 @@
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
 	<title>用户注册</title>
+	<style>
+	</style>
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-text">
@@ -89,7 +91,6 @@ layui.config({
 						,max: C1_GetAfterDate(-1).substring(0,4)
 						,value:C1_GetAfterDate(-1).substring(0,4)
 						,done: function(value, date, endDate){
-							let tradeTime = value;
 							//alert(value); //得到日期生成的值，如：2017-08-18
 							//console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
 							//console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
@@ -103,7 +104,6 @@ layui.config({
 						,max: C1_GetAfterDate(-1).substring(0,7)
 						,value:C1_GetAfterDate(-1).substring(0,7)
 						,done: function(value, date, endDate){
-							let tradeTime = value;
 						}
 					});
 					break;
@@ -116,20 +116,18 @@ layui.config({
 						,max: C1_GetAfterDate(-1)
 						,value:C1_GetAfterDate(-30)+" ~ "+C1_GetAfterDate(-1)
 						,done: function(value, date, endDate){
-							let tradeTime = value;
 						}
 					});
 					break;
 			}
-		    let tradeTime = $("#tradeTime").val();
 		})
 		
 		// 搜索参数
 		let getParam = function(){
 			var datetype = $("#datetype").val();
 			var date = $("#tradeTime").val();
-			var startDate="";
-			var endDate="";
+			var startDate = "";
+			var endDate = "";
 			if(datetype=="d" && date != ""){
 				var array=date.split("~");
 				startDate = C1_trim(array[0]);
@@ -142,6 +140,7 @@ layui.config({
 			let params = {
 				serviceId: $("#termId").val().trim(),
 				explain: $("#name").val().trim(),
+				datetype: datetype,
 				startDate: startDate,
 				endDate: endDate
 			};
@@ -179,29 +178,27 @@ layui.config({
 			,loading:true
 			,cols: [
 				[
-					{type: 'radio', fixed: 'left'}		
+					{type: 'radio', fixed: 'left'}
 					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
 					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
 					,{field:'termId', width:100, title: '终端ID'}
 					,{field:'tradeTime', width:200, title: '注册时间', sort: true}
 					,{field:'name', width:100, title: '用户姓名'}
-					,{field:'sex', width:100, title: '性别', templet: function(res){
-						return res.sex=="1"?"男":res.sex=="2"?"女":"无";
-					}}
+					,{field:'sexTypeDesc', width:100, title: '性别'}
 					,{field:'birthday', width:150, title: '出生日期'}
 					,{field:'address', width:100, title: '地址'}
 					,{field:'mobile', width:150, title: '手机号'}
-					,{field:'country', width:100, title: '国籍'}
+					,{field:'countryTypeDesc', width:100, title: '国籍'}
 					,{field:'nation', width:100, title: '民族'}
 					,{field:'photo', width:100, title: '照片', hide: true}
 					,{field:'patientType', width:100, title: '用户类型', templet: function(res){
 						return res.patientType=="0"?"成人":res.patientType=="1"?"儿童":"";
 					}}
-					,{field:'cardType', width:100, title: '卡类型', hide: true}
+					,{field:'cardTypeDesc', width:100, title: '卡类型', hide: true}
 					,{field:'cardNo', width:100, title: '卡号', hide: true}
-					,{field:'certificateType', width:100, title: '证件类型', hide: true}
+					,{field:'certTypeDesc', width:100, title: '证件类型', hide: true}
 					,{field:'certificateNo', width:100, title: '证件号', hide: true}
-					,{field:'guardCertType', width:100, title: '监护人证件类型', hide: true}
+					,{field:'guardCertTypeDesc', width:100, title: '监护人证件类型', hide: true}
 					,{field:'guardCertNo', width:100, title: '监护人证件号', hide: true}
 					,{field:'guardName', width:100, title: '监护人姓名', hide: true}
 					,{field:'patientId', width:100, title: '院内用户ID', hide: true}
@@ -213,6 +210,16 @@ layui.config({
 				]
 			]
 		   	,page: true
+			,done: function (res, curr, count) {
+				console.log(res.data);
+				let that = this.elem.next();
+				res.data.forEach(function (item, index) {
+					if (item.tradeResult == "1") {
+						let tr = that.find(".layui-table-box tbody tr[data-index='" + index + "']");
+						tr.css("background-color", "#ff7373");
+					}
+				});
+			}
 		});
 		
 		// 重新渲染表
