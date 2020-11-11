@@ -16,8 +16,8 @@ public class ApiController {
 
 	@RequiresPermissions("selectPatientList")
 	@RequestMapping("/selectPatientList")
-	public Object selectPatientList(Integer page, Integer limit, String name, String termId) {
-		return apiService.selectPatientList(page, limit, name, termId);
+	public Object selectPatientList(Integer page, Integer limit, String name, String termId, String startDate, String endDate) {
+		return apiService.selectPatientList(page, limit, name, termId, startDate, endDate);
 	}
 
 	@RequiresPermissions("selectPayList")

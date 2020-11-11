@@ -26,6 +26,22 @@
 				</div>
 			</div>
 			<div class="layui-inline">
+	    	 	<label class="layui-form-label">查询类别</label>
+	    	 	<div class="layui-input-block">
+		    	  	<select  id="datetype" lay-filter="datetype" >
+						<option  value="y" selected>按年查询</option>
+						<option  value="m">按月查询</option>
+						<option  value="d">按日查询</option>
+		  			</select>
+	  			</div>
+	    	</div>
+	    	<div class="layui-inline">
+				<label class="layui-form-label">日期范围</label>
+				<div class="layui-input-block"  id="dateBox">
+					<input type="text" class="layui-input" id="tradeTime" style="width:200px;" placeholder="YYYY-MM-DD" readonly="readonly">
+				</div>
+		    </div>
+			<div class="layui-inline">
 				<button class="layui-btn" type="button" id="btn-query"><i class="layui-icon layui-icon-search"></i>搜索</button>
 			</div>
 		</div>
@@ -45,17 +61,89 @@ layui.config({
   }).extend({
 	    index: 'lib/index', //主入口模块
 	    formSelects: 'lib/extend/formSelects-v4'
-  }).use(['form','table','layer', 'formSelects'], function(){
+  }).use(['form','table','layer', 'formSelects', 'laydate'], function(){
 		let table = layui.table;
 		let form = layui.form;
 		let formSelects = layui.formSelects;
+		let laydate = layui.laydate;
+		
+		laydate.render({
+			elem: '#tradeTime'
+			,type: 'year'
+			,max: C1_GetAfterDate(-1).substring(0,4)
+			,value: C1_GetAfterDate(-1).substring(0,4)
+			,done: function(value, date, endDate){
+			}
+		});
+		
+		// 监听时间类型选项
+		form.on('select(datetype)', function(data){
+			let datetype = data.value;
+			$("#tradeTime").remove();
+		    $("#dateBox").html('<input type="text" class="layui-input" id="tradeTime" style="width:200px;" placeholder="YYYY-MM-DD" readonly="readonly">');
+		    switch (datetype) {
+				case "y":
+					laydate.render({
+						 elem: '#tradeTime'
+						,type: 'year'
+						,max: C1_GetAfterDate(-1).substring(0,4)
+						,value:C1_GetAfterDate(-1).substring(0,4)
+						,done: function(value, date, endDate){
+							let tradeTime = value;
+							//alert(value); //得到日期生成的值，如：2017-08-18
+							//console.log(date); //得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
+							//console.log(endDate); //得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
+						}
+					});
+					break;
+				case "m":
+					laydate.render({
+						 elem: '#tradeTime'
+						,type: 'month'
+						,max: C1_GetAfterDate(-1).substring(0,7)
+						,value:C1_GetAfterDate(-1).substring(0,7)
+						,done: function(value, date, endDate){
+							let tradeTime = value;
+						}
+					});
+					break;
+				case "d":
+					laydate.render({
+						 elem: '#tradeTime'
+						,type: 'date'
+						,range: "~"
+						,min: C1_GetAfterDate(-30)
+						,max: C1_GetAfterDate(-1)
+						,value:C1_GetAfterDate(-30)+" ~ "+C1_GetAfterDate(-1)
+						,done: function(value, date, endDate){
+							let tradeTime = value;
+						}
+					});
+					break;
+			}
+		    let tradeTime = $("#tradeTime").val();
+		})
 		
 		// 搜索参数
 		let getParam = function(){
+			var datetype = $("#datetype").val();
+			var date = $("#tradeTime").val();
+			var startDate="";
+			var endDate="";
+			if(datetype=="d" && date != ""){
+				var array=date.split("~");
+				startDate = C1_trim(array[0]);
+				endDate = C1_trim(array[1]);
+			}else{
+				startDate = date;
+				endDate = date;
+			}
 			//查询参数
 			let params = {
 				serviceId: $("#termId").val().trim(),
-				explain: $("#name").val().trim()
+				explain: $("#name").val().trim(),
+				startDate: startDate,
+				endDate: endDate
 			};
 			return params;
 		}
