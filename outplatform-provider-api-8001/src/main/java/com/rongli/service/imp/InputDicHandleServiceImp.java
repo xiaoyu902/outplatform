@@ -3,6 +3,7 @@ package com.rongli.service.imp;
 import java.lang.reflect.Method;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.rongli.common.utils.SpringUtil;
 import com.rongli.exception.BaseException;
@@ -16,6 +17,8 @@ public class InputDicHandleServiceImp implements DicHandleService{
 	@Override
 	public String getCardType(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		String cardtype=SpringUtil.getBean(InputDicMapper.class).getCardType(data);
 		return cardtype;
 	}
@@ -23,60 +26,80 @@ public class InputDicHandleServiceImp implements DicHandleService{
 	@Override
 	public String getCertType(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getCertType(data);
 	}
 
 	@Override
 	public String getChannel(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getChannel(data);
 	}
 
 	@Override
 	public String getCountry(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getCountry(data);
 	}
 
 	@Override
 	public String getFeetype(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getFeeType(data);
 	}
 
 	@Override
 	public String getPaytype(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getPayType(data);
 	}
 
 	@Override
 	public String getRechargetype(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getRechargeType(data);
 	}
 
 	@Override
 	public String getSex(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getSex(data);
 	}
 
 	@Override
 	public String getTime(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getTimeType(data);
 	}
 
 	@Override
 	public String getDocTitle(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getDocTitle(data);
 	}
 
 	@Override
 	public String getRegtype(String data) {
 		// TODO Auto-generated method stub
+		if(StringUtils.isEmpty(data))
+			return "";
 		return SpringUtil.getBean(InputDicMapper.class).getRegType(data);
 	}
 

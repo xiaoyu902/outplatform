@@ -8,6 +8,6 @@ mybatis-plus:
   typeAliasesPackage: com.rongli.entities
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    cache-enabled: true
+    cache-enabled: false
     map-underscore-to-camel-case: true
 

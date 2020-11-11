@@ -23,6 +23,7 @@ import com.rongli.entities.params.Input;
 import com.rongli.entities.params.Output;
 import com.rongli.entities.params.RetCodeRuler;
 import com.rongli.entities.params.ServiceEntity;
+import com.rongli.entities.params.ServiceResult;
 import com.rongli.exception.BaseException;
 import com.rongli.service.imp.InputDicHandleServiceImp;
 import com.rongli.service.imp.OutputDicHandleServiceImp;
@@ -150,8 +151,7 @@ public class DataHandleService {
 						val=(val==null?"":val);
 					}
 					XmlUtil.addNode(doc, code.getChangeRuler(), val);
-				}
-				
+				}	
 			}
 	        
 	        
@@ -200,7 +200,7 @@ public class DataHandleService {
 		return ret;
 	}
 	
-	public String conversionOutput(ServiceEntity se,String recv,JSONObject dbData) {
+	public void conversionOutput(ServiceEntity se,ServiceResult sr) {
 		if(se==null)
 			throw new BaseException("服务模板为空");
 		
@@ -210,7 +210,7 @@ public class DataHandleService {
 		if(output==null)
 			throw new BaseException("输出参数模板为空");
 		
-		if(recv==null)
+		if(StringUtils.isEmpty(sr.getFromHisData()))
 			throw new BaseException("接收数据为空");
 		
 		//se.setFromHisData(recv);
@@ -229,15 +229,18 @@ public class DataHandleService {
 			
 			//返回码
 			
-			JSONObject json_his=JSON.parseObject(recv);
+			JSONObject json_his=JSON.parseObject(sr.getFromHisData());
 			
             String hiscode = json_his.getString(retcode_obj.getHiscode()) ;
             
             String hismsg = json_his.getString(retcode_obj.getHismsg()) ;
 
-            if(!hiscode.equals(retcode_obj.getRightcode())) 
+            if(!hiscode.equals(retcode_obj.getRightcode())) {
             	throw new BaseException(hismsg);
-            
+            } else {
+            	sr.setResult(true);
+            	sr.setMsg(hismsg);
+            }
             JSONObject retObj=ResultBody.success(hismsg).toJson();
             if(titles!=null) {
 	            for(Code code:titles) {
@@ -253,7 +256,7 @@ public class DataHandleService {
 	            		retObj.put(code.getChangeRuler(), val);
 	            	}
 	            	if(!StringUtils.isEmpty(code.getDbfield())) {
-	            		dbData.put(code.getDbfield(), val);
+	            		sr.getDbData().put(code.getDbfield(), val);
 	            	}
 	            }
             }
@@ -272,11 +275,12 @@ public class DataHandleService {
             	 retObj.put("records", arrat_ret);
             }
             ret=retObj.toString();
+            sr.setToThirdData(ret);
 		}else if(datatype.equals(DataTypeEnum.XML.getCode())) {
 			
 			Document doc = null;
             try{
-            	doc = DocumentHelper.parseText(recv);//这种不会乱码
+            	doc = DocumentHelper.parseText(sr.getFromHisData());//这种不会乱码
             }catch(Exception e){
             	throw new BaseException("XML解析异常:"+e.getMessage());
             }
@@ -284,8 +288,14 @@ public class DataHandleService {
             String hiscode = XmlUtil.getNodeText(doc,retcode_obj.getHiscode());
             
             String hismsg = XmlUtil.getNodeText(doc,retcode_obj.getHismsg());
-            if(!hiscode.equals(retcode_obj.getRightcode())) 
+            
+            
+            if(!hiscode.equals(retcode_obj.getRightcode())) {
             	throw new BaseException(hismsg);
+            } else {
+            	sr.setResult(true);
+            	sr.setMsg(hismsg);
+            }
             
             JSONObject retObj=ResultBody.success(hismsg).toJson();
             if(titles!=null) {
@@ -302,7 +312,7 @@ public class DataHandleService {
 	            		retObj.put(code.getChangeRuler(), val);
 	            	}
 	            	if(!StringUtils.isEmpty(code.getDbfield())) {
-	            		dbData.put(code.getDbfield(), val);
+	            		sr.getDbData().put(code.getDbfield(), val);
 	            	}
 	            }
             }
@@ -325,11 +335,10 @@ public class DataHandleService {
             	}
             }       
             ret=retObj.toString();
-            
+            sr.setToThirdData(ret);
 		}else {
 			throw new BaseException("数据类型非法");
 		}
-		return ret;
 	}
 	
 
@@ -379,9 +388,9 @@ public class DataHandleService {
 		// TODO Auto-generated method stub
 		try {
 			Class<?> classType = InputDicHandleServiceImp.class;
-	    	Object inputDicHandleService = classType.newInstance();
+	    	Object inputDicHandleServiceImp = classType.newInstance();
 	    	 Method echoMethod = classType.getDeclaredMethod(func, new Class[]{String.class});
-	         Object result2 = echoMethod.invoke(inputDicHandleService, new Object[]{param});
+	         Object result2 = echoMethod.invoke(inputDicHandleServiceImp, new Object[]{param});
 	         return (String) result2;
 		}catch (Exception e) {
 			// TODO: handle exception

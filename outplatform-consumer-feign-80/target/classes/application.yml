@@ -12,11 +12,25 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 5000
+            timeoutInMilliseconds: 20000
+
+
                 
 spring:
   application:
     name: outplatform-consumer-feign
+  cloud:
+    loadbalancer: 
+      retry:
+        enable: true
+
+
+OUTPLATFORM-PROVIDER-API:
+  ribbon: 
+    ConnectTimeout: 5000 #连接超时时间
+    ReadTimeout: 60000 #命令执行时间60秒
+    MaxAutoRetriesNextServer: 0 #最大重试次数
+    MaxAutoRetries: 0 #最大重试次数
 
 eureka:
   client:

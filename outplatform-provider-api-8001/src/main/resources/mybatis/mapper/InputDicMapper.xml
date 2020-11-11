@@ -33,7 +33,7 @@
 	public String getTitleType(@Param("data")String data);
 	 -->
 	<select id="getPayType" parameterType="String" resultType="String">
-		select his_type from t_dic_paytype where sex_type=#{data}
+		select his_type from t_dic_paytype where pay_type=#{data}
 	</select>
 	
 	<select id="getCardType" parameterType="String" resultType="String">

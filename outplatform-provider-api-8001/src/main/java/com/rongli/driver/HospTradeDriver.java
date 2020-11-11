@@ -51,6 +51,8 @@ public abstract class HospTradeDriver {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				throw new BaseException("入参转化失败:"+e.getMessage());
+			}finally {
+				sr.setDbData(dbData);
 			}
 			
 			try {
@@ -65,17 +67,12 @@ public abstract class HospTradeDriver {
 				// TODO: handle exception
 				throw new BaseException("通讯异常:"+e.getMessage());
 			}
-			
 			try {
-				String toThirdData= dataHandleService.conversionOutput(se, sr.getFromHisData(), dbData);
-				sr.setDbData(dbData);
-				sr.setToThirdData(toThirdData);
+				dataHandleService.conversionOutput(se, sr);
 			}catch (Exception e) {
 				// TODO: handle exception
 				throw new BaseException("解析数据失败:"+e.getMessage());
 			}
-			sr.setResult(true);
-			sr.setMsg("交易成功");
 		}catch (Exception e) {
 			sr.setResult(false);
 			sr.setMsg("交易失败:"+e.getMessage());
