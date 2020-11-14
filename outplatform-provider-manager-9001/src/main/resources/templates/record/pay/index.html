@@ -50,11 +50,45 @@
 				</div>
 			</div>
 			<div class="layui-inline">
+				<label class="layui-form-label">缴费金额</label>
+				<div class="layui-input-inline">
+					<input type="text" id="totalFee" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
 				<label class="layui-form-label">支付渠道</label>
 				<div class="layui-input-inline">
 					<select id="channelType" lay-filter="channelType" th:with="list=${@apiService.selectChannelList()}">
 						<option value=""></option>
 						<option  th:each="channel:${list}" th:value="${channel.channelType}" th:text="${channel.channelTypeDesc}"></option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">支付类型</label>
+				<div class="layui-input-inline">
+					<select id="payType" lay-filter="payType" th:with="list=${@apiService.selectPayTypeList()}">
+						<option value=""></option>
+						<option  th:each="pay:${list}" th:value="${pay.payType}" th:text="${pay.payTypeDesc}"></option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">卡类型</label>
+				<div class="layui-input-inline">
+					<select id="cardType" lay-filter="cardType" th:with="list=${@apiService.selectCardTypeList()}">
+						<option value=""></option>
+						<option  th:each="card:${list}" th:value="${card.cardType}" th:text="${card.cardTypeDesc}"></option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">交易返回</label>
+				<div class="layui-input-inline">
+					<select id="tradeResult" lay-filter="tradeResult" >
+						<option value="">全部</option>
+						<option value="0">成功</option>
+						<option value="1">失败</option>
 					</select>
 				</div>
 			</div>
@@ -175,7 +209,11 @@ layui.config({
 				billId: $("#billId").val().trim(),
 				transactionNo: $("#transactionNo").val().trim(),
 				bankCardNo: $("#bankCardNo").val().trim(),
+				totalFee: $("#totalFee").val().trim(),
 				channelType: $("#channelType").val().trim(),
+				payType: $("#payType").val().trim(),
+				cardType: $("#cardType").val().trim(),
+				tradeResult: $("#tradeResult").val().trim(),
 				datetype: datetype,
 				startDate: startDate,
 				endDate: endDate
@@ -215,23 +253,24 @@ layui.config({
 			,cols: [
 				[
 					{type: 'radio', fixed: 'left'}
-					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
+					,{field:'tradeResult', width:100,  title: '交易返回码'}
 					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
-					,{field:'payTime', width:100, title: '支付时间'}
-					,{field:'termId', width:200, title: '终端ID'}
+					,{field:'tradeTime', width:180, title: '交易时间'}
+					,{field:'payTime', width:180, title: '支付时间'}
+					,{field:'termId', width:100, title: '终端ID'}
 					,{field:'name', width:100, title: '用户姓名'}
-					,{field:'orderId', width:100, title: '订单号'}
-					,{field:'billId', width:150, title: '挂号订单号'}
-					,{field:'visitNo', width:100, title: '就诊号'}
-					,{field:'bankCardNo', width:150, title: '银行卡号'}
-					,{field:'transactionNo', width:100, title: '支付流水号'}
+					,{field:'orderId', width:180, title: '订单号'}
+					,{field:'billId', width:180, title: '挂号订单号'}
+					,{field:'visitNo', width:180, title: '就诊号'}
+					,{field:'bankCardNo', width:180, title: '银行卡号'}
+					,{field:'transactionNo', width:180, title: '支付流水号'}
 					,{field:'channelTypeDesc', width:100, title: '支付渠道'}
 					,{field:'payTypeDesc', width:100, title: '支付类型'}
-					,{field:'totalFee', width:100, title: '待缴费总金额'}
-					,{field:'changeFee', width:100, title: '院内变更金额'}
-					,{field:'payableFee', width:100, title: '医院应付金额'}
-					,{field:'medicareFee', width:100, title: '医保统筹支付金额'}
-					,{field:'medFelfFee', width:100, title: '医保个账支付金额'}
+					,{field:'totalFee', width:150, title: '待缴费总金额'}
+					,{field:'changeFee', width:100, title: '院内变更金额', hide: true}
+					,{field:'payableFee', width:100, title: '医院应付金额', hide: true}
+					,{field:'medicareFee', width:100, title: '医保统筹支付金额', hide: true}
+					,{field:'medFelfFee', width:100, title: '医保个账支付金额', hide: true}
 					,{field:'personFee', width:100, title: '用户应付金额', hide: true}
 					,{field:'feeTypeDesc', width:100, title: '费用类别', hide: true}
 					,{field:'medicareParams', width:100, title: '医保预结算参数', hide: true}
@@ -245,10 +284,19 @@ layui.config({
 					,{field:'receiptId', width:100, title: '收据号', hide: true}
 					,{field:'invoiceId', width:100, title: '发票号', hide: true}
 					,{field:'remark', width:100, title: '备注', hide: true}
-					,{field:'tradeTime', width:100, title: '交易时间', hide: true}
 				]
 			]
 		   	,page: true
+			,done: function (res, curr, count) {
+				console.log(res.data);
+				let that = this.elem.next();
+				res.data.forEach(function (item, index) {
+					if (item.tradeResult == "1") {
+						let tr = that.find(".layui-table-box tbody tr[data-index='" + index + "']");
+						tr.css("background-color", "#ffcaca");
+					}
+				});
+			}
 		});
 		
 		// 重新渲染表

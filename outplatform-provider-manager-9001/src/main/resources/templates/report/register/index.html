@@ -7,7 +7,7 @@
 	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
-	<title>缴费统计</title>
+	<title>挂号统计</title>
 	<style>
 		#total{
 			font-size:15px;line-height:40px;width:100%;font-weight:bold;
@@ -21,6 +21,22 @@
 <blockquote class="layui-elem-quote layui-text">
 	<form class="layui-form">
 		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">查询科室</label>
+				<div class="layui-input-inline">
+					<select id="departmentId" lay-filter="departmentId">
+						<option value="">全部</option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">查询医生</label>
+				<div class="layui-input-inline">
+					<select id="doctorId" lay-filter="doctorId">
+						<option value="">全部</option>
+					</select>
+				</div>
+			</div>
 			<div class="layui-inline">
 			 	<label class="layui-form-label">查询类别</label>
 			 	<div class="layui-input-block">
@@ -82,7 +98,7 @@
 <div class="layui-btn-container">
 	<div class="layui-row" id="total">
 		<div class="layui-col-md2">
-      		缴费总金额:<span id="totalSum">~元</span>
+      		挂号总金额:<span id="totalSum">~元</span>
     	</div>
 		<div class="layui-col-md2">
       		总笔数:<span id="totalCount">~笔</span>
@@ -95,7 +111,7 @@
 <script th:src="@{/js/Call_Ajaxtools.js}"></script>
 <script th:src="@{/js/axios.min.js}"></script>
 <script th:src="@{/js/qs.js}"></script>
-<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/js/C1.js}"></script>
 <script th:src="@{/layuiadmin/layui/layui.js}"></script> 
 <script th:src="@{/js/highcharts/highcharts.js?a=1}"></script> 
 <script th:inline="text">
@@ -113,24 +129,51 @@ layui.config({
 		let element = layui.element;
 		let qs = Qs;
 		let m_obj;
+		let deptAndDoctor;
+		
+		// 加载科室列表
+		axios.post('/trade/selectDeptAndDockerList').then( res => {
+			res = res.data;
+			console.log(res);
+			deptAndDoctor = res;
+			console.log(deptAndDoctor.deptList)
+			if(res.code == '0'){
+				for(let i in deptAndDoctor.deptList){
+					$("#departmentId").append('<option value="'+ deptAndDoctor.deptList[i].departmentId +'">'+ deptAndDoctor.deptList[i].departmentName +'</option>')
+				}
+			}
+			form.render('select');
+		});
+		
+		// 监听科室切换
+		form.on('select(departmentId)', function(data){
+			let index = $("#departmentId").get(0).selectedIndex; // 被选中option的索引
+			let doctorList = deptAndDoctor.doctorList[index-1]; // -1除去第一个option
+			$("#doctorId").html('');
+			$("#doctorId").append('<option value="">全部</option>');
+			for(let i in doctorList){
+				$("#doctorId").append('<option value="'+ doctorList[i].doctorId +'">'+ doctorList[i].doctorName +'</option>')
+			}
+			form.render('select');
+		})
 		
 		// 监听折线图切换
 		element.on('tab(line)', function(data){
 			if(data.index==0){ //金额
-				var array = [];
-				for(var i=0;i<m_obj.line.data.length;i++){
-					var obj = m_obj.line.data[i];
-					var data = {};
+				let array = [];
+				for(let i=0;i<m_obj.line.data.length;i++){
+					let obj = m_obj.line.data[i];
+					let data = {};
 					data.name = obj.channelTypeDesc;
 					data.data = obj.sumList;
 					array.push(data);
 				}
 				showLineChart("交易金额",m_obj.line.xAxis,array);
 			}else{
-				var array=[];
-				for(var i=0;i<m_obj.line.data.length;i++){
-					var obj=m_obj.line.data[i];
-					var data={};
+				let array=[];
+				for(let i=0;i<m_obj.line.data.length;i++){
+					let obj=m_obj.line.data[i];
+					let data={};
 					data.name=obj.channelTypeDesc;
 					data.data=obj.countList;
 					array.push(data);
@@ -140,7 +183,7 @@ layui.config({
 		});
 		// 加载折线图数据
 		function showLineChart(title,xAxis,data){
-			var json={
+			let json={
 				chart: {
 					type: 'line'
 				},
@@ -175,20 +218,20 @@ layui.config({
 		// 监听饼状图切换
 		element.on('tab(pie)', function(data){
 			if(data.index==0){//金额
-				var array=[];
-				for(var i=0;i<m_obj.pie.length;i++){
-					var obj=m_obj.pie[i];
-					var data={};
+				let array=[];
+				for(let i=0;i<m_obj.pie.length;i++){
+					let obj=m_obj.pie[i];
+					let data={};
 					data.name=obj.channelTypeDesc;
 					data.y=Math.abs(obj.sum);
 					array.push(data);
 				}
 				showPieChart("交易金额 ",array);
 			}else{
-				var array=[];
-				for(var i=0;i<m_obj.pie.length;i++){
-					var obj=m_obj.pie[i];
-					var data={};
+				let array=[];
+				for(let i=0;i<m_obj.pie.length;i++){
+					let obj=m_obj.pie[i];
+					let data={};
 					data.name=obj.channelTypeDesc;
 					data.y=Math.abs(obj.count);
 					array.push(data);
@@ -199,7 +242,7 @@ layui.config({
 		
 		// 加载饼状图数据
 		function showPieChart(title,data){
-			var json={
+			let json={
 				chart: {
 					plotBackgroundColor: null,
 					plotBorderWidth: null,
@@ -294,12 +337,12 @@ layui.config({
 		
 		// 搜索参数
 		let getParam = function(){
-			var datetype = $("#datetype").val();
-			var date = $("#tradeTime").val();
-			var startDate = "";
-			var endDate = "";
+			let datetype = $("#datetype").val();
+			let date = $("#tradeTime").val();
+			let startDate = "";
+			let endDate = "";
 			if(datetype=="d" && date != ""){
-				var array=date.split("~");
+				let array=date.split("~");
 				startDate = C1_trim(array[0]);
 				endDate = C1_trim(array[1]);
 			}else{
@@ -308,6 +351,8 @@ layui.config({
 			}
 			//查询参数
 			let params = {
+				departmentId: $("#departmentId").val(),
+				doctorId: $("#doctorId").val(),
 				datetype: datetype,
 				startDate: startDate,
 				endDate: endDate
@@ -331,16 +376,16 @@ layui.config({
 		
 		// 加载表格、图形数据
 		let loadData = function() {
-			axios.post('/trade/payConsole', qs.stringify(getParam())).then( res => {
+			axios.post('/trade/registerConsole', qs.stringify(getParam())).then( res => {
 				res = res.data;
 				console.log(res)
 				// 存数据
 				m_obj = res;
 				// 加载折线图
-				var lineArr=[];
-				for(var i=0;i<res.line.data.length;i++){
-					var obj=res.line.data[i];
-					var data={};
+				let lineArr=[];
+				for(let i=0;i<res.line.data.length;i++){
+					let obj=res.line.data[i];
+					let data={};
 					data.name=obj.channelTypeDesc;
 					data.data=obj.sumList;
 					lineArr.push(data);
@@ -348,10 +393,10 @@ layui.config({
 				element.tabChange('line', '0');
 				showLineChart("交易金额",res.line.xAxis,lineArr);
 				// 加载饼状图
-				var pieArr=[];
-				for(var i=0;i<res.pie.length;i++){
-					var obj=res.pie[i];
-					var data={};
+				let pieArr=[];
+				for(let i=0;i<res.pie.length;i++){
+					let obj=res.pie[i];
+					let data={};
 					data.name=obj.channelTypeDesc;
 					data.y=Math.abs(obj.sum);
 					pieArr.push(data);
@@ -372,39 +417,53 @@ layui.config({
 					}]
 					,data: res.data
 					,loading:true
+					,totalRow: true
 					,cols: [
 						[
-							{type: 'radio', fixed: 'left'}
-							,{field:'tradeResult', width:100,  title: '交易返回码'}
+							{type: 'radio', fixed: 'left'}		
+							,{field:'tradeResult', width:100,  title: '交易返回码', totalRowText: '合计'}
 							,{field:'tradeMessage', width:200, title: '交易返回的消息'}
 							,{field:'tradeTime', width:180, title: '交易时间'}
 							,{field:'payTime', width:180, title: '支付时间'}
 							,{field:'termId', width:100, title: '终端ID'}
 							,{field:'name', width:100, title: '用户姓名'}
 							,{field:'orderId', width:180, title: '订单号'}
-							,{field:'billId', width:180, title: '挂号订单号'}
-							,{field:'visitNo', width:180, title: '就诊号'}
+							,{field:'hospOrderId', width:180, title: '挂号订单号'}
 							,{field:'bankCardNo', width:180, title: '银行卡号'}
 							,{field:'transactionNo', width:180, title: '支付流水号'}
 							,{field:'channelTypeDesc', width:100, title: '支付渠道'}
-							,{field:'payTypeDesc', width:100, title: '支付类型'}
-							,{field:'totalFee', width:150, title: '待缴费总金额'}
+							,{field:'totalFee', width:100, title: '挂号费用', totalRow: true}
+							,{field:'departmentName', width:100, title: '科室名'}
+							,{field:'doctorName', width:100, title: '医生名'}
+							,{field:'departmentId', width:100, title: '科室ID'}
+							,{field:'doctorId', width:100, title: '医生ID'}
 							,{field:'changeFee', width:100, title: '院内变更金额', hide: true}
 							,{field:'payableFee', width:100, title: '医院应付金额', hide: true}
 							,{field:'medicareFee', width:100, title: '医保统筹支付金额', hide: true}
 							,{field:'medFelfFee', width:100, title: '医保个账支付金额', hide: true}
 							,{field:'personFee', width:100, title: '用户应付金额', hide: true}
-							,{field:'feeTypeDesc', width:100, title: '费用类别', hide: true}
-							,{field:'medicareParams', width:100, title: '医保预结算参数', hide: true}
+							,{field:'payTypeDesc', width:100, title: '支付类型', hide: true}
+							,{field:'regDesc', width:100, title: '注册类型', hide: true}
+							,{field:'medicareParameter', width:100, title: '医保预结算参数', hide: true}
 							,{field:'operatorId', width:100, title: '操作员', hide: true}
-							,{field:'patientId', width:100, title: '院内用户id', hide: true}
+							,{field:'patientId', width:100, title: '院内用户ID', hide: true}
 							,{field:'medicalNo', width:100, title: '病历号', hide: true}
-							,{field:'certTypeDesc', width:100, title: '用户证件类型', hide: true}
 							,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
-							,{field:'cardTypeDesc', width:100, title: '用户卡类型', hide: true}
+							,{field:'certTypeDesc', width:100, title: '用户证件类型', hide: true}
+							,{field:'cardTypeDesc', width:100, title: '卡类型', hide: true}
 							,{field:'cardNo', width:100, title: '卡号', hide: true}
+							,{field:'scheduleId', width:100, title: '排班ID', hide: true}
+							,{field:'timeId', width:100, title: '分时ID', hide: true}
+							,{field:'registerDate', width:100, title: '挂号时间', hide: true}
+							,{field:'noon', width:100, title: '时段', hide: true}
+							,{field:'startTime', width:100, title: '开始时间', hide: true}
+							,{field:'endTime', width:100, title: '结束时间', hide: true}
+							,{field:'visitFlag', width:100, title: 'flag', hide: true}
+							,{field:'levelCode', width:100, title: '挂号级别', hide: true}
 							,{field:'receiptId', width:100, title: '收据号', hide: true}
 							,{field:'invoiceId', width:100, title: '发票号', hide: true}
+							,{field:'sequenceNo', width:100, title: '排队序号', hide: true}
+							,{field:'visitAddress', width:100, title: '就诊地址', hide: true}
 							,{field:'remark', width:100, title: '备注', hide: true}
 						]
 					]

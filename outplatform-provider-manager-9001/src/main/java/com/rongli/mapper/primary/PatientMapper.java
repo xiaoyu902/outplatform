@@ -12,6 +12,6 @@ import com.rongli.entities.params.Patient;
 @CacheNamespace(implementation= RedisCache.class,eviction=RedisCache.class)
 public interface PatientMapper extends BaseMapper<Patient> {
 	
-	public List<JSONObject> selectPatientList(String name, String termId, String startDate, String endDate);
+	public List<JSONObject> selectPatientList(String name, String termId, String patientId, String cardType, String tradeResult, String startDate, String endDate);
 
 }

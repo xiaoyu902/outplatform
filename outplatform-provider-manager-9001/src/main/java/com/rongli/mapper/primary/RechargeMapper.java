@@ -12,6 +12,11 @@ import com.rongli.entities.params.Recharge;
 @CacheNamespace(implementation= RedisCache.class,eviction=RedisCache.class)
 public interface RechargeMapper extends BaseMapper<Recharge>{
 	
-	public List<JSONObject> selectRechargeList(String name, String termId, String orderId, String transactionNo, String bankCardNo, String channelType,
+	public List<JSONObject> selectRechargeList(String name, String termId, String orderId, String transactionNo, String bankCardNo, String amount,
+			String channelType, String tradeResult,
 			String datetype, String startDate, String endDate);
+
+	public List<JSONObject> selectCountAndSumByDateAndChannel(String datetype, String startDate, String endDate);
+
+	public List<JSONObject> selectCountAndSumByChannel(String datetype, String startDate, String endDate);
 }

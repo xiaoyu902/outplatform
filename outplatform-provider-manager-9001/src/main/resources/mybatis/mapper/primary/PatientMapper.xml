@@ -15,6 +15,15 @@
 			<if test="termId != null and termId != ''">
 				AND term_id LIKE CONCAT('%',#{termId},'%') 
 			</if>
+			<if test="patientId != null and patientId != ''">
+				AND patient_id LIKE CONCAT('%',#{patientId},'%') 
+			</if>
+			<if test="cardType != null and cardType != ''">
+				AND card_type = #{cardType} 
+			</if>
+			<if test="tradeResult != null and tradeResult != ''">
+				AND trade_result = #{tradeResult} 
+			</if>
 			<if test="startDate != null and startDate != ''
 				and endDate != null and endDate != ''">
 				AND trade_time BETWEEN #{startDate} and #{endDate}

@@ -8,8 +8,6 @@
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
 	<title>用户注册</title>
-	<style>
-	</style>
 </head>
 <body>
 <blockquote class="layui-elem-quote layui-text">
@@ -22,9 +20,34 @@
 				</div>
 			</div>
 			<div class="layui-inline">
+				<label class="layui-form-label">患者ID</label>
+				<div class="layui-input-inline">
+					<input type="text" id="patientId" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
 				<label class="layui-form-label">用户姓名</label>
 				<div class="layui-input-inline">
 					<input type="text" id="name" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">卡类型</label>
+				<div class="layui-input-inline">
+					<select id="cardType" lay-filter="cartType" th:with="list=${@apiService.selectCardTypeList()}">
+						<option value=""></option>
+						<option  th:each="card:${list}" th:value="${card.cardType}" th:text="${card.cardTypeDesc}"></option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">交易返回</label>
+				<div class="layui-input-inline">
+					<select id="tradeResult" lay-filter="tradeResult" >
+						<option value="">全部</option>
+						<option value="0">成功</option>
+						<option value="1">失败</option>
+					</select>
 				</div>
 			</div>
 			<div class="layui-inline">
@@ -138,8 +161,11 @@ layui.config({
 			}
 			//查询参数
 			let params = {
-				serviceId: $("#termId").val().trim(),
-				explain: $("#name").val().trim(),
+				termId: $("#termId").val().trim(),
+				name: $("#name").val().trim(),
+				patientId: $("#patientId").val().trim(),
+				cardType: $("#cardType").val().trim(),
+				tradeResult: $("#tradeResult").val().trim(),
 				datetype: datetype,
 				startDate: startDate,
 				endDate: endDate
@@ -182,12 +208,12 @@ layui.config({
 					,{field:'tradeResult', width:100,  title: '交易返回码', hide: true}
 					,{field:'tradeMessage', width:200, title: '交易返回的消息'}
 					,{field:'termId', width:100, title: '终端ID'}
-					,{field:'tradeTime', width:200, title: '注册时间', sort: true}
+					,{field:'tradeTime', width:180, title: '注册时间', sort: true}
 					,{field:'name', width:100, title: '用户姓名'}
 					,{field:'sexTypeDesc', width:100, title: '性别'}
-					,{field:'birthday', width:150, title: '出生日期'}
+					,{field:'birthday', width:180, title: '出生日期'}
 					,{field:'address', width:100, title: '地址'}
-					,{field:'mobile', width:150, title: '手机号'}
+					,{field:'mobile', width:180, title: '手机号'}
 					,{field:'countryTypeDesc', width:100, title: '国籍'}
 					,{field:'nation', width:100, title: '民族'}
 					,{field:'photo', width:100, title: '照片', hide: true}
@@ -216,7 +242,7 @@ layui.config({
 				res.data.forEach(function (item, index) {
 					if (item.tradeResult == "1") {
 						let tr = that.find(".layui-table-box tbody tr[data-index='" + index + "']");
-						tr.css("background-color", "#ff7373");
+						tr.css("background-color", "#ffcaca");
 					}
 				});
 			}
