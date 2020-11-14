@@ -27,14 +27,93 @@
 			<if test="bankCardNo != null and bankCardNo != ''">
 				AND bank_card_no LIKE CONCAT('%',#{bankCardNo},'%') 
 			</if>
+			<if test="totalFee != null and totalFee != ''">
+				AND total_fee LIKE CONCAT('%',#{totalFee},'%') 
+			</if>
 			<if test="channelType != null and channelType != ''">
 				AND pay_channel = #{channelType} 
+			</if>
+			<if test="payType != null and payType != ''">
+				AND pay_type = #{payType} 
+			</if>
+			<if test="cardType != null and cardType != ''">
+				AND card_type = #{cardType} 
+			</if>
+			<if test="tradeResult != null and tradeResult != ''">
+				AND trade_result = #{tradeResult} 
 			</if>
 			<if test="startDate != null and startDate != ''
 				and endDate != null and endDate != ''">
 				AND trade_time BETWEEN #{startDate} and #{endDate}
 			</if>
+			<if test="departmentId != null and departmentId != ''">
+				AND department_id = #{departmentId} 
+			</if>
+			<if test="doctorId != null and doctorId != ''">
+				AND doctor_id = #{doctorId} 
+			</if>
 		</where>
+	</select>
+	
+	<select id="selectCountAndSumByDateAndChannel" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			COUNT(0) AS count,
+			SUM(total_fee) AS sum,
+			pay_channel,
+			channel_type_desc
+			<if test='datetype.equals("y")'>
+				, DATE_FORMAT(trade_time,'%Y-%m') as trade_time 
+			</if>
+			<if test='datetype.equals("m") or datetype.equals("d")'>
+				, DATE_FORMAT(trade_time,'%Y-%m-%d') as trade_time 
+			</if>
+		FROM v_api_register 
+		WHERE 
+			trade_result = '0'
+			AND trade_time BETWEEN #{startDate} and #{endDate} 
+			<if test="departmentId != null and departmentId != ''">
+				AND department_id = #{departmentId} 
+			</if>
+			<if test="doctorId != null and doctorId != ''">
+				AND doctor_id = #{doctorId} 
+			</if>
+		GROUP BY pay_channel
+			<if test='datetype.equals("y")'>
+				, DATE_FORMAT(trade_time,'%Y-%m')
+			</if>
+			<if test='datetype.equals("m") or datetype.equals("d")'>
+				, DATE_FORMAT(trade_time,'%Y-%m-%d')
+			</if>
+		ORDER BY trade_time ASC 
+	</select>
+	
+	<select id="selectCountAndSumByChannel" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			COUNT(0) AS count,
+			SUM(total_fee) AS sum,
+			pay_channel,
+			channel_type_desc
+			<if test='datetype.equals("y")'>
+				, DATE_FORMAT(trade_time,'%Y') as trade_time 
+			</if>
+			<if test='datetype.equals("m")'>
+				, DATE_FORMAT(trade_time,'%Y-%m') as trade_time 
+			</if>
+			<if test='datetype.equals("d")'>
+				, DATE_FORMAT(trade_time,'%Y-%m-%d') as trade_time 
+			</if>
+		FROM v_api_register 
+		WHERE 
+			trade_result = '0'
+			AND trade_time BETWEEN #{startDate} and #{endDate} 
+			<if test="departmentId != null and departmentId != ''">
+				AND department_id = #{departmentId} 
+			</if>
+			<if test="doctorId != null and doctorId != ''">
+				AND doctor_id = #{doctorId} 
+			</if>
+		GROUP BY pay_channel
+		ORDER BY trade_time DESC 
 	</select>
 	
 </mapper>

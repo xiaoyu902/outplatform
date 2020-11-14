@@ -7,7 +7,7 @@
 	<link rel="stylesheet" th:href="@{/layuiadmin/layui/css/formSelects-v4.css?v=1}" media="all">
 	<link rel="stylesheet" th:href="@{/css/my.css?v=3}" media="all">
 	
-	<title>缴费统计</title>
+	<title>充值统计</title>
 	<style>
 		#total{
 			font-size:15px;line-height:40px;width:100%;font-weight:bold;
@@ -82,7 +82,7 @@
 <div class="layui-btn-container">
 	<div class="layui-row" id="total">
 		<div class="layui-col-md2">
-      		缴费总金额:<span id="totalSum">~元</span>
+      		充值总金额:<span id="totalSum">~元</span>
     	</div>
 		<div class="layui-col-md2">
       		总笔数:<span id="totalCount">~笔</span>
@@ -95,7 +95,7 @@
 <script th:src="@{/js/Call_Ajaxtools.js}"></script>
 <script th:src="@{/js/axios.min.js}"></script>
 <script th:src="@{/js/qs.js}"></script>
-<script th:src="@{/js/C1.js}"></script>   
+<script th:src="@{/js/C1.js}"></script>
 <script th:src="@{/layuiadmin/layui/layui.js}"></script> 
 <script th:src="@{/js/highcharts/highcharts.js?a=1}"></script> 
 <script th:inline="text">
@@ -331,7 +331,7 @@ layui.config({
 		
 		// 加载表格、图形数据
 		let loadData = function() {
-			axios.post('/trade/payConsole', qs.stringify(getParam())).then( res => {
+			axios.post('/trade/rechargeConsole', qs.stringify(getParam())).then( res => {
 				res = res.data;
 				console.log(res)
 				// 存数据
@@ -372,40 +372,32 @@ layui.config({
 					}]
 					,data: res.data
 					,loading:true
+					,totalRow: true
 					,cols: [
 						[
 							{type: 'radio', fixed: 'left'}
-							,{field:'tradeResult', width:100,  title: '交易返回码'}
+							,{field:'tradeResult', width:100,  title: '交易返回码', totalRowText: '合计'}
 							,{field:'tradeMessage', width:200, title: '交易返回的消息'}
 							,{field:'tradeTime', width:180, title: '交易时间'}
-							,{field:'payTime', width:180, title: '支付时间'}
 							,{field:'termId', width:100, title: '终端ID'}
 							,{field:'name', width:100, title: '用户姓名'}
 							,{field:'orderId', width:180, title: '订单号'}
-							,{field:'billId', width:180, title: '挂号订单号'}
-							,{field:'visitNo', width:180, title: '就诊号'}
 							,{field:'bankCardNo', width:180, title: '银行卡号'}
+							,{field:'chargeTime', width:180, title: '充值时间'}
 							,{field:'transactionNo', width:180, title: '支付流水号'}
 							,{field:'channelTypeDesc', width:100, title: '支付渠道'}
+							,{field:'amount', width:100, title: '充值金额', totalRow: true}
 							,{field:'payTypeDesc', width:100, title: '支付类型'}
-							,{field:'totalFee', width:150, title: '待缴费总金额'}
-							,{field:'changeFee', width:100, title: '院内变更金额', hide: true}
-							,{field:'payableFee', width:100, title: '医院应付金额', hide: true}
-							,{field:'medicareFee', width:100, title: '医保统筹支付金额', hide: true}
-							,{field:'medFelfFee', width:100, title: '医保个账支付金额', hide: true}
-							,{field:'personFee', width:100, title: '用户应付金额', hide: true}
-							,{field:'feeTypeDesc', width:100, title: '费用类别', hide: true}
-							,{field:'medicareParams', width:100, title: '医保预结算参数', hide: true}
+							,{field:'admissionNo', width:100, title: '住院号'}
 							,{field:'operatorId', width:100, title: '操作员', hide: true}
-							,{field:'patientId', width:100, title: '院内用户id', hide: true}
+							,{field:'patientId', width:100, title: '院内用户ID', hide: true}
 							,{field:'medicalNo', width:100, title: '病历号', hide: true}
-							,{field:'certTypeDesc', width:100, title: '用户证件类型', hide: true}
-							,{field:'certificateNo', width:100, title: '用户证件号码', hide: true}
-							,{field:'cardTypeDesc', width:100, title: '用户卡类型', hide: true}
+							,{field:'certTypeDesc', width:100, title: '证件类型', hide: true}
+							,{field:'certificateNo', width:100, title: '证件号码', hide: true}
+							,{field:'cardTypeDesc', width:100, title: '卡类型', hide: true}
 							,{field:'cardNo', width:100, title: '卡号', hide: true}
-							,{field:'receiptId', width:100, title: '收据号', hide: true}
-							,{field:'invoiceId', width:100, title: '发票号', hide: true}
 							,{field:'remark', width:100, title: '备注', hide: true}
+							,{field:'balance', width:100, title: '余额', hide: true}
 						]
 					]
 				   	,page: true
@@ -421,7 +413,7 @@ layui.config({
 						// 加载总金额、笔数
 						let totalSum = 0;
 						for(let i=0;i<m_obj.data.length;i++){
-							totalSum += parseFloat(m_obj.data[i].totalFee);
+							totalSum += parseFloat(m_obj.data[i].amount);
 						}
 						$("#totalSum").html(totalSum+"元")
 						$("#totalCount").html(m_obj.data.length+"笔")
