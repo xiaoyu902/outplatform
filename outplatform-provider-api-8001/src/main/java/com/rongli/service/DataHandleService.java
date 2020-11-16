@@ -27,6 +27,7 @@ import com.rongli.entities.params.ServiceResult;
 import com.rongli.exception.BaseException;
 import com.rongli.service.imp.InputDicHandleServiceImp;
 import com.rongli.service.imp.OutputDicHandleServiceImp;
+import com.rongli.service.imp.ParamCheckServiceImp;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,9 +82,8 @@ public class DataHandleService {
 				if(!StringUtils.isEmpty(code.getDbfield())) //保存需要存储数据库的字段json
 					dbData.put(code.getDbfield(), val);
 				
-				
 				if(code.getParamcheck()!=null) {
-					String dt=this.inputInvoke(code.getParamcheck(), val);
+					JSONObject dt=this.paramCheckInvoke(code.getParamcheck(), val);
 					if(dt==null)
 						throw new BaseException("入参["+code.getCodeRuler()+"]参数值["+val+"]非法");
 				}
@@ -152,8 +152,8 @@ public class DataHandleService {
 					dbData.put(code.getDbfield(), val);
 				
 				if(code.getParamcheck()!=null) {
-					String dt=this.inputInvoke(code.getParamcheck(), val);
-					if(dt==null)
+					JSONObject obj=this.paramCheckInvoke(code.getParamcheck(), val);
+					if(obj==null)
 						throw new BaseException("入参["+code.getCodeRuler()+"]参数值["+val+"]非法");
 				}
 				
@@ -409,9 +409,22 @@ public class DataHandleService {
 			// TODO: handle exception
 			throw new BaseException(func+"反射异常:"+e.getMessage());
 		}
-		
 	}
 	
+	public JSONObject paramCheckInvoke(String func, String param) {
+		// TODO Auto-generated method stub
+		try {
+			Class<?> classType = ParamCheckServiceImp.class;
+	    	Object paramCheckServiceImp = classType.newInstance();
+	    	 Method echoMethod = classType.getDeclaredMethod(func, new Class[]{String.class});
+	         Object result2 = echoMethod.invoke(paramCheckServiceImp, new Object[]{param});
+	         return (JSONObject) result2;
+		}catch (Exception e) {
+			// TODO: handle exception
+			throw new BaseException(func+"反射异常:"+e.getMessage());
+		}
+	}
+
 	public String outputInvoke(String func, String param) {
 		// TODO Auto-generated method stub
 		try {

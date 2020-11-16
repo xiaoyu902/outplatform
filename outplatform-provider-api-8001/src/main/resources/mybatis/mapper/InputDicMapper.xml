@@ -73,8 +73,9 @@
 	</select>
 	
 	<select id="getRegType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
-		select his_type from t_dic_regtype where reg_type=#{data}
+		select * from t_dic_regtype where reg_type=#{data}
 	</select>
+	
 </mapper>
  
 
