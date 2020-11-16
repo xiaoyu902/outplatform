@@ -32,47 +32,47 @@
 	
 	public String getTitleType(@Param("data")String data);
 	 -->
-	<select id="getPayType" parameterType="String" resultType="String">
-		select his_type from t_dic_paytype where pay_type=#{data}
+	<select id="getPayType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_paytype where pay_type=#{data}
 	</select>
 	
-	<select id="getCardType" parameterType="String" resultType="String">
-		select his_type from t_dic_cardtype where card_type=#{data}
+	<select id="getCardType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_cardtype where card_type=#{data}
 	</select>
 
-	<select id="getCertType" parameterType="String" resultType="String">
-		select his_type from t_dic_certtype where cert_type=#{data}
+	<select id="getCertType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_certtype where cert_type=#{data}
 	</select>
 	
-	<select id="getChannel" parameterType="String" resultType="String">
-		select his_type from t_dic_channel where channel_type=#{data}
+	<select id="getChannel" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_channel where channel_type=#{data}
 	</select>
 	
-	<select id="getCountry" parameterType="String" resultType="String">
-		select his_type from t_dic_country where country_type=#{data}
+	<select id="getCountry" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_country where country_type=#{data}
 	</select>
 	
-	<select id="getFeeType" parameterType="String" resultType="String">
-		select his_type from t_dic_feetype where fee_type=#{data}
+	<select id="getFeeType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_feetype where fee_type=#{data}
 	</select>
 	
-	<select id="getRechargeType" parameterType="String" resultType="String">
-		select his_type from t_dic_rechargetype where recharge_type=#{data}
+	<select id="getRechargeType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_rechargetype where recharge_type=#{data}
 	</select>
 	
-	<select id="getSex" parameterType="String" resultType="String">
-		select his_type from t_dic_sex where sex_type=#{data}
+	<select id="getSex" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_sex where sex_type=#{data}
 	</select>
 	
-	<select id="getTimeType" parameterType="String" resultType="String">
-		select his_type from t_dic_time where time_type=#{data}
+	<select id="getTimeType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_time where time_type=#{data}
 	</select>
 	
-	<select id="getDocTitle" parameterType="String" resultType="String">
-		select his_type from t_dic_doctitle where title_type=#{data}
+	<select id="getDocTitle" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+		select * from t_dic_doctitle where title_type=#{data}
 	</select>
 	
-	<select id="getRegType" parameterType="String" resultType="String">
+	<select id="getRegType" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
 		select his_type from t_dic_regtype where reg_type=#{data}
 	</select>
 </mapper>

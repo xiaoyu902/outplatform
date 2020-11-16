@@ -45,6 +45,9 @@ public class Code implements Serializable{
 	@ApiModelProperty(value = "默认值")
 	private String value;
 	
+	@ApiModelProperty(value = "检测数据函数")
+	private String paramcheck;
+	
 	@ApiModelProperty(value = "转化函数")
 	private String function;
 }

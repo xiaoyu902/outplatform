@@ -44,7 +44,7 @@ public class RedisLock {
 	      }
 	      return false;
 	    });
-	  }
+	  } 
 	  /**
 	   * 删除锁
 	   * @param key

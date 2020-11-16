@@ -77,11 +77,17 @@ public class DataHandleService {
 				
 				if(val.length()>code.getLength()) //校验长度
 					throw new BaseException("入参["+code.getCodeRuler()+"]长度大于"+code.getLength());
-				
+
 				if(!StringUtils.isEmpty(code.getDbfield())) //保存需要存储数据库的字段json
 					dbData.put(code.getDbfield(), val);
 				
 				
+				if(code.getParamcheck()!=null) {
+					String dt=this.inputInvoke(code.getParamcheck(), val);
+					if(dt==null)
+						throw new BaseException("入参["+code.getCodeRuler()+"]参数值["+val+"]非法");
+				}
+
 				if(!StringUtils.isEmpty(code.getChangeRuler())) { //不为空才添加
 					if(!StringUtils.isEmpty(code.getFunction())) { //函数反射
 						val=this.inputInvoke(code.getFunction(), val);
@@ -144,6 +150,13 @@ public class DataHandleService {
 				
 				if(!StringUtils.isEmpty(code.getDbfield())) //保存需要存储数据库的字段json
 					dbData.put(code.getDbfield(), val);
+				
+				if(code.getParamcheck()!=null) {
+					String dt=this.inputInvoke(code.getParamcheck(), val);
+					if(dt==null)
+						throw new BaseException("入参["+code.getCodeRuler()+"]参数值["+val+"]非法");
+				}
+				
 				
 				if(code.getChangeRuler().startsWith("/")) { //只有第一位为/才添加
 					if(!StringUtils.isEmpty(code.getFunction())) { //函数反射

@@ -1,12 +1,11 @@
 package com.rongli.service.imp;
 
-import java.lang.reflect.Method;
-
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rongli.common.utils.SpringUtil;
-import com.rongli.exception.BaseException;
+import com.rongli.entities.CardType;
 import com.rongli.mapper.InputDicMapper;
 import com.rongli.service.DicHandleService;
 
@@ -19,8 +18,12 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		String cardtype=SpringUtil.getBean(InputDicMapper.class).getCardType(data);
-		return cardtype;
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getCardType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -28,7 +31,12 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getCertType(data);
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getCertType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -36,7 +44,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getChannel(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getChannel(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -44,7 +58,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getCountry(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getCountry(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -52,7 +72,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getFeeType(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getFeeType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -60,7 +86,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getPayType(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getPayType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -68,7 +100,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getRechargeType(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getRechargeType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -76,7 +114,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getSex(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getSex(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -84,7 +128,13 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getTimeType(data);
+		
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getTimeType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -92,7 +142,12 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getDocTitle(data);
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getDocTitle(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 	@Override
@@ -100,7 +155,12 @@ public class InputDicHandleServiceImp implements DicHandleService{
 		// TODO Auto-generated method stub
 		if(StringUtils.isEmpty(data))
 			return "";
-		return SpringUtil.getBean(InputDicMapper.class).getRegType(data);
+		JSONObject obj=SpringUtil.getBean(InputDicMapper.class).getRegType(data);
+		if(obj==null) {
+			return null;
+		}else {
+			return obj.getString("his_type");
+		}
 	}
 
 }
