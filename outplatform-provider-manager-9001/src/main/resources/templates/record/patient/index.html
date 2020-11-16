@@ -220,6 +220,9 @@ layui.config({
 					,{field:'patientType', width:100, title: '用户类型', templet: function(res){
 						return res.patientType=="0"?"成人":res.patientType=="1"?"儿童":"";
 					}}
+					,{field:'totalFee', width:150, title: '金额'}
+					,{field:'channelTypeDesc', width:100, title: '支付渠道'}
+					,{field:'payTypeDesc', width:100, title: '支付类型'}
 					,{field:'cardTypeDesc', width:100, title: '卡类型', hide: true}
 					,{field:'cardNo', width:100, title: '卡号', hide: true}
 					,{field:'certTypeDesc', width:100, title: '证件类型', hide: true}

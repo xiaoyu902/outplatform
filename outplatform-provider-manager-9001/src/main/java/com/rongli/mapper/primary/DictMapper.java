@@ -12,6 +12,9 @@ import com.rongli.config.redis.RedisCache;
 @CacheNamespace(implementation= RedisCache.class,eviction=RedisCache.class)
 public interface DictMapper extends BaseMapper {
 	
+	@Select("SELECT dic_name,func_name FROM t_dic_list;")
+	public List<JSONObject> selectDictList();
+	
 	@Select("SELECT channel_type, channel_type_desc FROM t_dic_channel")
 	public List<JSONObject> selectChannelList();
 

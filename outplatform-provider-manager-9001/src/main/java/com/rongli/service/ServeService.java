@@ -1,5 +1,7 @@
 package com.rongli.service;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.rongli.common.exception.BaseException;
 import com.rongli.entities.ResultBody;
 import com.rongli.entities.params.ServiceEntity;
+import com.rongli.mapper.primary.DictMapper;
 import com.rongli.mapper.primary.ServeMapper;
 
 
@@ -22,7 +25,18 @@ public class ServeService {
 	@Autowired
 	private ServeMapper serveMapper;
 	
+	@Autowired
+	private DictMapper dictMapper;
+	
 
+	/**
+	 * 分页查询服务
+	 * @param page
+	 * @param limit
+	 * @param serviceId
+	 * @param explain
+	 * @return
+	 */
 	public Object findByPage(Integer page, Integer limit, String serviceId, String explain) {
 		if(page == null || page <= 0) {
 			page = 1;
@@ -45,10 +59,18 @@ public class ServeService {
 		return obj;
 	}
 	
+	/**
+	 * 修改服务
+	 * @param serviceEntity
+	 */
 	public void updateById(ServiceEntity serviceEntity) {
 		serveMapper.updateById(serviceEntity);
 	}
 
+	/**
+	 * 保存服务
+	 * @param serviceEntity
+	 */
 	public void save(ServiceEntity serviceEntity) {
 		
 		if(StringUtil.isEmpty(serviceEntity.getServiceId())) {
@@ -70,6 +92,9 @@ public class ServeService {
 		if(StringUtil.isEmpty(serviceEntity.getSavedb())) {
 			serviceEntity.setSavedb("0");
 		}
+		if(StringUtil.isEmpty(serviceEntity.getIsvalid())) {
+			serviceEntity.setIsvalid("0");
+		}
 		ServiceEntity service = serveMapper.selectById(serviceEntity.getServiceId());
 		if(service == null) {
 			new BaseException("服务ID重复！");
@@ -79,6 +104,10 @@ public class ServeService {
 		
 	}
 	
+	/**
+	 * 删除服务
+	 * @param serviceId
+	 */
 	public void deleteById(String serviceId) {
 		if(StringUtil.isEmpty(serviceId)) {
 			new BaseException("serviceId为空");
@@ -86,12 +115,46 @@ public class ServeService {
 		serveMapper.deleteById(serviceId);
 	}
 
+	/**
+	 * 查询所有api表
+	 * @return
+	 */
 	public List<String> findTableList() {
 		return serveMapper.findTableList();
 	}
 
+	/**
+	 * 根据表名查询字段列表
+	 * @param tableName
+	 * @return
+	 */
 	public List<JSONObject> findColumnListByTable(String tableName) {
 		return serveMapper.findColumnListByTable(tableName);
+	}
+	
+
+	/**
+	 * 字典转换列表
+	 * @return
+	 */
+	public List<JSONObject> selectDictList() {
+		return dictMapper.selectDictList();
+	}
+	
+	/**
+	 * 获取接口校验列表
+	 * @return
+	 */
+	public List<JSONObject> selectCheckList() {
+		List<JSONObject> list = new ArrayList<>();
+		Method[] methods = ParamCheckService.class.getDeclaredMethods();
+		JSONObject obj;
+		for (int i = 0; i < methods.length; i++) {
+			obj = new JSONObject();
+			obj.put("name", methods[i].getName());
+			list.add(obj);
+		}
+		return list;
 	}
 	
 }

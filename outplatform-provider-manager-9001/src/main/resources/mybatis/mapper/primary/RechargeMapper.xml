@@ -28,7 +28,7 @@
 				AND amount = #{amount} 
 			</if>
 			<if test="channelType != null and channelType != ''">
-				AND pay_channel = #{channelType} 
+				AND channel_type = #{channelType} 
 			</if>
 			<if test="tradeResult != null and tradeResult != ''">
 				AND trade_result = #{tradeResult} 
@@ -45,7 +45,7 @@
 		SELECT
 			COUNT(0) AS count,
 			SUM(amount) AS sum,
-			pay_channel,
+			channel_type,
 			channel_type_desc
 			<if test='datetype.equals("y")'>
 				, DATE_FORMAT(trade_time,'%Y-%m') as trade_time 
@@ -57,7 +57,7 @@
 		WHERE 
 			trade_result = '0'
 			AND trade_time BETWEEN #{startDate} and #{endDate} 
-		GROUP BY pay_channel
+		GROUP BY channel_type
 			<if test='datetype.equals("y")'>
 				, DATE_FORMAT(trade_time,'%Y-%m')
 			</if>
@@ -71,7 +71,7 @@
 		SELECT
 			COUNT(0) AS count,
 			SUM(amount) AS sum,
-			pay_channel,
+			channel_type,
 			channel_type_desc
 			<if test='datetype.equals("y")'>
 				, DATE_FORMAT(trade_time,'%Y') as trade_time 
@@ -86,7 +86,7 @@
 		WHERE 
 			trade_result = '0'
 			AND trade_time BETWEEN #{startDate} and #{endDate} 
-		GROUP BY pay_channel
+		GROUP BY channel_type
 		ORDER BY trade_time DESC 
 	</select>
 	

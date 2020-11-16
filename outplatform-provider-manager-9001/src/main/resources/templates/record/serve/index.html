@@ -67,18 +67,15 @@
 		<td><input type="text" class="layui-input codeRuler"></td>
 		<td><input type="text" class="layui-input changeRuler"></td>
 		<td>
-			<select class="dic">
+			<select class="dic" lay-filter="dic" th:with="list=${@serveService.selectDictList()}">
 				<option value="">String</option>
-				<option value="getCardType">卡类型</option>
-				<option value="getCertType">证件类型</option>
-				<option value="getChannel">渠道</option>
-				<option value="getCountry">国籍</option>
-				<option value="getDocTitle">医生级别</option>
-				<option value="getFeetype">缴费类型</option>
-				<option value="getPaytype">支付类型</option>
-				<option value="getRechargetype">就医类型</option>
-				<option value="getSex">性别</option>
-				<option value="getTime">时间</option>
+				<option th:each="dict:${list}" th:value="${dict.dicName}" th:text="${dict.funcName}"></option>
+			</select>
+		</td>
+		<td>
+			<select class="paramcheck" lay-filter="paramcheck" th:with="list=${@serveService.selectCheckList()}">
+				<option value="">不校验</option>
+				<option th:each="obj:${list}" th:value="${obj.name}" th:text="${obj.name}"></option>
 			</select>
 		</td>
 		<td><input type="text" class="layui-input value"></td>
@@ -138,6 +135,14 @@
 		</div>
 		<div class="layui-form-item">
 			<div class="layui-inline">
+				<label class="layui-form-label">启用服务 </label>
+				<div class="layui-input-inline" style="text-align: left;">
+					<input type="checkbox"  name="isvalid" checked lay-skin="switch" lay-filter="isvalid" lay-text="ON|OFF">
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
 				<label class="layui-form-label">数据库表名<span style="color:red">*</span></label>
 				<div class="layui-input-inline">
 					<select id="tableName" lay-filter="tableName" th:with="list=${@serveService.findTableList()}">
@@ -174,6 +179,7 @@
 			    <col>
 			    <col width="100">
 			    <col width="100">
+			    <col width="100">
 				<col>
 			    <col width="150">
 			    <col width="60">
@@ -187,6 +193,7 @@
 					<th>编码规则</th>
 					<th>转变后的规则</th>
 					<th>字典转换</th>
+					<th>接口校验</th>
 					<th>默认值</th>
 					<th>表字段</th>
 					<th>字段描述</th>
@@ -337,6 +344,15 @@ layui.config({
 			}
 		});
 		
+		// 监听switch开关，是否启用服务
+		form.on('switch(isvalid)', function(data){
+			if(data.elem.checked){ //开关value值，也可以通过data.elem.value得到
+				isvalid = "1";
+			}else{
+				isvalid = "0";
+			}
+		});
+		
 		// 渲染表
 		table.render({
 			elem: '#tb'
@@ -359,7 +375,10 @@ layui.config({
 					,{field:'dataType', title: '数据类型'}
 					,{field:'tableName', title: '数据表名'}
 					,{field:'savedb', title: '是否存储', templet: function(res){
-						return res.savedb=="1"?"是":"否";
+						return '<input type="checkbox" disabled name="isactive" ' + (res.savedb=='1'?'checked':'') + ' lay-skin="switch" lay-filter="isactive" lay-text="ON|OFF">';
+					}}
+					,{field:'isvalid', title: '启用服务', templet: function(res){
+						return '<input type="checkbox" disabled name="isvalid" ' + (res.isvalid=='1'?'checked':'') + ' lay-skin="switch" lay-filter="isvalid" lay-text="ON|OFF">';
 					}}
 				]
 			]
@@ -478,6 +497,8 @@ layui.config({
 				$("#dataType").val('xml');
 				$('input[name="isactive"]').prop("checked", false); // 不存储
 				savedb = "0";
+				$('input[name="isvalid"]').prop("checked", true); // 启用服务
+				isvalid = "1";
 				$("#tableName").parent().parent().parent().hide(); // 隐藏
 				// 输入参数
 				$("#ReqRoot").val('');
@@ -503,6 +524,12 @@ layui.config({
 					$("#tableName").parent().parent().parent().hide()
 					// $('input[name="isactive"]').children('em').text('OFF');
 				}
+				isvalid = data.isvalid;
+				if(isvalid == "1"){//启用
+					$('input[name="isvalid"]').prop("checked", true);
+				}else{//不启用
+					$('input[name="isvalid"]').prop("checked", false);
+				}
 				// 输入参数
 				let inputData = JSON.parse(data.input);
 				$("#ReqRoot").val(inputData.reqRoot);
@@ -521,6 +548,7 @@ layui.config({
 					_tr.find(".codeRuler").val(inputArr[i].codeRuler);
 					_tr.find(".changeRuler").val(inputArr[i].changeRuler);
 					_tr.find(".dic").val(inputArr[i]['function']);
+					_tr.find(".paramcheck").val(inputArr[i].paramcheck);
 					_tr.find(".value").val(inputArr[i].value);
 					_tr.find(".dbfield").attr("value",inputArr[i].dbfield);
 					_tr.find(".dbfield").attr("onchange", "changeColumn(this,'"+inputArr[i].serviceExplain+"')")
@@ -552,6 +580,7 @@ layui.config({
 					_tr.find(".codeRuler").val(outputArr[i].codeRuler);
 					_tr.find(".changeRuler").val(outputArr[i].changeRuler);
 					_tr.find(".dic").val(outputArr[i]['function']);
+					_tr.find(".paramcheck").parent().remove();
 					_tr.find(".value").val(outputArr[i].value);
 					_tr.find(".dbfield").attr("value",outputArr[i].dbfield);
 					_tr.find(".dbfield").attr("onchange", "changeColumn(this,'"+outputArr[i].explain+"')")
@@ -575,6 +604,7 @@ layui.config({
 	
 	
 	let savedb = "0"; // 是否保存到数据库表
+	let isvalid = "1"; // 是否启用服务
 	let pages = ["#basePage","#inputPage","#outputPage"]
 	let step = 0; // 编辑服务的步骤页
 	// 新增tr时【存】，完成tr时【删-1】，编辑tr时【存】，删除在编辑tr自身时【删-1】
@@ -691,6 +721,7 @@ layui.config({
 			$("#inputbox").append(_tr)
 		}else if(type == "output"){
 			outputIndex = $("#outputbox").children().length; // 添加前获取索引的不需要-1
+			_tr.find(".paramcheck").parent().remove();
 			$("#outputbox").append(_tr)
 		}
 	}
@@ -854,6 +885,7 @@ layui.config({
 		console.log(explain)
 		console.log(datatype)
 		console.log(savedb)
+		console.log(isvalid)
 		console.log(tableName)
 		console.log("---------base end---------")
 		// 输入参数
@@ -869,6 +901,7 @@ layui.config({
 				codeRuler: _tr.find(".codeRuler").val().trim(),
 				changeRuler: _tr.find(".changeRuler").val().trim(),
 				"function": _tr.find(".dic").val(),
+				paramcheck: _tr.find(".paramcheck").val(),
 				value: _tr.find(".value").val().trim(),
 				dbfield: _tr.find(".dbfield").val().trim(),
 				explain: _tr.find(".explain").val().trim(),
@@ -941,6 +974,7 @@ layui.config({
 			serviceExplain: explain,
 			dataType: datatype,
 			savedb: savedb,
+			isvalid: isvalid,
 			tableName: tableName,
 			input: JSON.stringify(inputData),
 			output: JSON.stringify(outputData)
@@ -1060,6 +1094,7 @@ layui.config({
 				for(let i=0;i<outputRules.length;i++) {
 					let reg = /\$\{type\}/g;
 					_tr = $($("#inputTemplate").html().replace(reg, 'output'));
+					_tr.find(".paramcheck").parent().remove();
 					_tr.find(".codeRuler").val(outputRules[i]);
 					_tr.find(".dbfield").attr("onchange", "changeColumn(this,'')")
 					$("#outputbox").append(_tr);
